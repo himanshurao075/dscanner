@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:dscanner/cropsScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 void main() {
@@ -198,6 +200,18 @@ class ImageEditScreen extends StatefulWidget {
 }
 
 class _ImageEditScreenState extends State<ImageEditScreen> {
+  static const platform = MethodChannel('samples.flutter.dev/battery');
+  callMethodChannel() async {
+    String batteryLevel = 'null';
+    try {
+      final int result = await platform.invokeMethod('getBatteryLevel');
+      batteryLevel = 'Battery level at $result % .';
+    } on PlatformException catch (e) {
+      batteryLevel = "Failed to get battery level: '${e.message}'.";
+    }
+    debugPrint("BATTERY LEVEV === $batteryLevel");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -213,22 +227,36 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
           ),
           Container(
             color: Colors.black,
-            child: const ButtonBar(
+            child: ButtonBar(
               alignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Icon(
+                const Icon(
                   Icons.filter,
                   color: Colors.white,
                 ),
-                Icon(
-                  Icons.crop,
-                  color: Colors.white,
+                InkWell(
+                  onTap: () async {
+                    final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CropScreen(
+                            img: widget.img,
+                          ),
+                        ));
+
+                    debugPrint("Result DAta  ${result}");
+                    callMethodChannel();
+                  },
+                  child: const Icon(
+                    Icons.crop,
+                    color: Colors.white,
+                  ),
                 ),
-                Icon(
+                const Icon(
                   Icons.brightness_4_outlined,
                   color: Colors.white,
                 ),
-                Icon(Icons.rotate_90_degrees_ccw, color: Colors.white)
+                const Icon(Icons.rotate_90_degrees_ccw, color: Colors.white)
               ],
             ),
           )
