@@ -1,0 +1,3 @@
+E:/Himanshu/exmkulProjects/tnt_mobile_app/android/cv/.cxx/Debug/41481t3p/x86_64/CMakeFiles/opencv_jni_shared.dir
+E:/Himanshu/exmkulProjects/tnt_mobile_app/android/cv/.cxx/Debug/41481t3p/x86_64/CMakeFiles/edit_cache.dir
+E:/Himanshu/exmkulProjects/tnt_mobile_app/android/cv/.cxx/Debug/41481t3p/x86_64/CMakeFiles/rebuild_cache.dir

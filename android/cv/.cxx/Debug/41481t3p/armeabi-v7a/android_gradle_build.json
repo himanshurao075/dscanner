@@ -1,0 +1,39 @@
+{
+  "stringTable": {},
+  "buildFiles": [
+    "E:\\Himanshu\\exmkulProjects\\tnt_mobile_app\\android\\cv\\libcxx_helper\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "C:\\Users\\TestnTrack User\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+      "-C",
+      "E:\\Himanshu\\exmkulProjects\\tnt_mobile_app\\android\\cv\\.cxx\\Debug\\41481t3p\\armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "C:\\Users\\TestnTrack User\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+    "-C",
+    "E:\\Himanshu\\exmkulProjects\\tnt_mobile_app\\android\\cv\\.cxx\\Debug\\41481t3p\\armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "opencv_jni_shared-Debug-armeabi-v7a": {
+      "buildCommandComponents": [
+        "C:\\Users\\TestnTrack User\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+        "-C",
+        "E:\\Himanshu\\exmkulProjects\\tnt_mobile_app\\android\\cv\\.cxx\\Debug\\41481t3p\\armeabi-v7a",
+        "opencv_jni_shared"
+      ],
+      "buildType": "debug",
+      "abi": "armeabi-v7a",
+      "artifactName": "opencv_jni_shared",
+      "output": "E:\\Himanshu\\exmkulProjects\\tnt_mobile_app\\android\\cv\\.cxx\\Debug\\41481t3p\\armeabi-v7a\\libopencv_jni_shared.a"
+    }
+  },
+  "toolchains": {},
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

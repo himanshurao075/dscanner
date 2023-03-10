@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'dart:ui' as ui;
 
@@ -119,6 +120,33 @@ class _CropScreenState extends State<CropScreen> {
     return result;
   }
 
+  static const platform = MethodChannel('samples.flutter.dev/cropImage');
+  callMethodChannel() async {
+    // String batteryLevel = 'null';
+    var decodedImage =
+        await decodeImageFromList(File(widget.img.path).readAsBytesSync());
+    try {
+      final String result = await platform.invokeMethod('cropImage', {
+        "imgPath": widget.img.path,
+        "x1": touchPointer1.dx,
+        "x2": touchPointer2.dx,
+        "x3": touchPointer3.dx,
+        "x4": touchPointer4.dx,
+        "y1": touchPointer1.dy,
+        "y2": touchPointer2.dy,
+        "y3": touchPointer3.dy,
+        "y4": touchPointer4.dy,
+        "height": decodedImage.height,
+        "width": decodedImage.width
+      });
+      // batteryLevel = 'Battery level at $result % .';
+      debugPrint("Method Channel Result : $result");
+    } on PlatformException catch (e) {
+      debugPrint("Failed to get battery level: '${e.message}'.");
+    }
+  
+  }
+
   final paintKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
@@ -127,6 +155,7 @@ class _CropScreenState extends State<CropScreen> {
     touchPointer4 = Offset(300, size.dy + 100);
     return WillPopScope(
       onWillPop: () async {
+        callMethodChannel();
         Navigator.pop(context,
             [touchPointer1, touchPointer2, touchPointer3, touchPointer4]);
         return false;

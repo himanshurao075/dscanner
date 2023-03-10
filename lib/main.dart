@@ -200,17 +200,7 @@ class ImageEditScreen extends StatefulWidget {
 }
 
 class _ImageEditScreenState extends State<ImageEditScreen> {
-  static const platform = MethodChannel('samples.flutter.dev/battery');
-  callMethodChannel() async {
-    String batteryLevel = 'null';
-    try {
-      final int result = await platform.invokeMethod('getBatteryLevel');
-      batteryLevel = 'Battery level at $result % .';
-    } on PlatformException catch (e) {
-      batteryLevel = "Failed to get battery level: '${e.message}'.";
-    }
-    debugPrint("BATTERY LEVEV === $batteryLevel");
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -245,7 +235,7 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                         ));
 
                     debugPrint("Result DAta  ${result}");
-                    callMethodChannel();
+                    // callMethodChannel();
                   },
                   child: const Icon(
                     Icons.crop,

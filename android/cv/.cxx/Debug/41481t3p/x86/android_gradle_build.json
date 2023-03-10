@@ -1,0 +1,39 @@
+{
+  "stringTable": {},
+  "buildFiles": [
+    "E:\\Himanshu\\exmkulProjects\\tnt_mobile_app\\android\\cv\\libcxx_helper\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "C:\\Users\\TestnTrack User\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+      "-C",
+      "E:\\Himanshu\\exmkulProjects\\tnt_mobile_app\\android\\cv\\.cxx\\Debug\\41481t3p\\x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "C:\\Users\\TestnTrack User\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+    "-C",
+    "E:\\Himanshu\\exmkulProjects\\tnt_mobile_app\\android\\cv\\.cxx\\Debug\\41481t3p\\x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "opencv_jni_shared-Debug-x86": {
+      "buildCommandComponents": [
+        "C:\\Users\\TestnTrack User\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+        "-C",
+        "E:\\Himanshu\\exmkulProjects\\tnt_mobile_app\\android\\cv\\.cxx\\Debug\\41481t3p\\x86",
+        "opencv_jni_shared"
+      ],
+      "buildType": "debug",
+      "abi": "x86",
+      "artifactName": "opencv_jni_shared",
+      "output": "E:\\Himanshu\\exmkulProjects\\tnt_mobile_app\\android\\cv\\.cxx\\Debug\\41481t3p\\x86\\libopencv_jni_shared.a"
+    }
+  },
+  "toolchains": {},
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

@@ -1,0 +1,2 @@
+ninja: Entering directory `E:\Himanshu\exmkulProjects\tnt_mobile_app\android\cv\.cxx\Debug\41481t3p\arm64-v8a'
+ninja: no work to do.

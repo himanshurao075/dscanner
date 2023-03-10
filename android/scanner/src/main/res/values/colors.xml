@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF203A6E</color>
+    <color name="purple_700">#FF001542</color>
+    <color name="teal_200">#FFEC7B22</color>
+    <color name="teal_700">#FFb44d00</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="light_blue_400">#FF29B6F6</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="gray_400">#FFBDBDBD</color>
+    <color name="gray_600">#FF757575</color>
+
+<!--    <color name="blue">#FF203A6E</color>-->
+
+<!--    primary: Color(0xFF203A6E),-->
+<!--    outline: Color(0xFF203A6E),-->
+<!--    shadow: Color(0xFF203A6E),-->
+<!--    onTertiary: Color(0xFF203A6E),-->
+<!--    // ignore: deprecated_member_use-->
+<!--    primaryVariant: Color(0xFF001542),-->
+<!--    secondary: Color(0xFFEC7B22),-->
+<!--    // ignore: deprecated_member_use-->
+<!--    secondaryVariant: Color(0xFFb44d00),-->
+<!--    surface: Color(0xFFF5F6F6),-->
+<!--    background: Color(0xFFF5F6F6),-->
+<!--    error: Color(0xFFBA1B1B),-->
+<!--    onPrimary: Color(0xFFFFFFFF),-->
+<!--    onSecondary: Color(0xFFFFFFFF),-->
+<!--    onSurface: Color(0xFF1B1B1F),-->
+<!--    onBackground: Color(0xFF1B1B1F),-->
+<!--    onError: Color(0xFFFFFFFF),-->
+
+</resources>

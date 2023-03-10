@@ -1,0 +1,7 @@
+Executable : C:\Users\TestnTrack User\AppData\Local\Android\Sdk\cmake\3.18.1\bin\ninja.exe
+arguments : 
+-C
+E:\Himanshu\exmkulProjects\dscanner\android\cv\.cxx\Debug\104n1d1w\x86
+opencv_jni_shared
+jvmArgs : 
+
