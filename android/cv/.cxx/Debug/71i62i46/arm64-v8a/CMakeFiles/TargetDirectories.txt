@@ -1,0 +1,3 @@
+/Users/examkul/StudioProjects/dscanner/android/cv/.cxx/Debug/71i62i46/arm64-v8a/CMakeFiles/rebuild_cache.dir
+/Users/examkul/StudioProjects/dscanner/android/cv/.cxx/Debug/71i62i46/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/examkul/StudioProjects/dscanner/android/cv/.cxx/Debug/71i62i46/arm64-v8a/CMakeFiles/opencv_jni_shared.dir

@@ -1,0 +1,7 @@
+Executable : /Users/examkul/Library/Android/sdk/cmake/3.18.1/bin/ninja
+arguments : 
+-C
+/Users/examkul/StudioProjects/dscanner/android/cv/.cxx/Debug/71i62i46/arm64-v8a
+opencv_jni_shared
+jvmArgs : 
+
