@@ -1,24 +1,28 @@
 package com.example.dscanner
 
 
+import android.annotation.TargetApi
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.util.Log
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import org.opencv.android.BaseLoaderCallback
+import org.opencv.android.LoaderCallbackInterface
+import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.Mat
-import org.opencv.android.LoaderCallbackInterface
-import org.opencv.android.BaseLoaderCallback
-import org.opencv.android.OpenCVLoader
-
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.util.*
 
 
 class MainActivity : FlutterActivity(){
@@ -30,7 +34,7 @@ class MainActivity : FlutterActivity(){
             CHANNEL
         ).setMethodCallHandler { call, result ->
             if (call.method == "cropImage") {
-                println("Flow 2")
+
 
                 val x1: Double = call.argument("x1")!!
                 val x2: Double = call.argument("x2")!!
@@ -43,7 +47,7 @@ class MainActivity : FlutterActivity(){
                 val imgWidth: Int = call.argument("width")!!
                 val imgHeight: Int = call.argument("height")!!
                 val imgPath: String = call.argument("imgPath")!!
-                println("Flow 1")
+
 
                 val croppedImage = cropImage(
                     x1,
@@ -72,6 +76,7 @@ class MainActivity : FlutterActivity(){
     }
 
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private fun cropImage(
         x1: Double,
         x2: Double,
@@ -85,23 +90,20 @@ class MainActivity : FlutterActivity(){
         imgHeight: Double,
         inputImg: String
     ): String {
+        var  imageUri :String? = ""
 //    val sd: File = Environment.getExternalStorageDirectory()
-        println("Flow 3")
         val image = File(inputImg)
-        print("Image Path ${image.path}");
         try {
-            println("Flow 4")
             val bmOptions: BitmapFactory.Options = BitmapFactory.Options()
             var bitmap: Bitmap = BitmapFactory.decodeFile(image.path, bmOptions)
             bitmap = Bitmap.createScaledBitmap(bitmap, imgWidth.toInt(), imgHeight.toInt(), true)
-            println("Flow 5")
             val imagePath: String
             val sortedPoints = arrayOfNulls<Point>(4)
             val point1 = Point(x1, y1)
             val point2 = Point(x2, y2)
             val point3 = Point(x3, y3)
             val point4 = Point(x4, y4)
-            println("Flow 6")
+
 
 //    MatOfPoint2f src = MatOfPoint2f()
             val src = MatOfPoint2f(
@@ -114,13 +116,13 @@ class MainActivity : FlutterActivity(){
 //            sortedPoints.get(1),
 //            sortedPoints.get(2),
 //            sortedPoints.get(3))
-            println("Flow 7")
+
             val currentImage = Mat()
+
 //    val bmp32: Bitmap = bmp.copy(Bitmap.Config.ARGB_8888, true)
             Utils.bitmapToMat(bitmap, currentImage)
 
 //                src.adjustROI(lineWidth, lineWidth, lineWidth, lineWidth);
-            println("Flow 8")
 
             val dst = MatOfPoint2f(
                 Point(0.0, 0.0),
@@ -128,15 +130,25 @@ class MainActivity : FlutterActivity(){
                 Point(0.0, imgHeight),
                 Point(imgWidth, imgHeight)
             )
-            println("Flow 9")
             val warpMat = Imgproc.getPerspectiveTransform(src, dst)
             //This is your new image as Mat
             val destImage = Mat()
-            println("Flow 9")
             // Imgproc.cvtColor(currentImage,destImage,Imgproc.COLOR_RGBA2GRAY);
             Imgproc.warpPerspective(currentImage, destImage, warpMat, Size(imgWidth, imgHeight))
+//
+            val tempbmp = Bitmap.createBitmap(destImage.cols(), destImage.rows(), Bitmap.Config.ARGB_8888)
+            Utils.matToBitmap(destImage, tempbmp);
 
-            println("Flow 10")
+            val currentBitmap = Bitmap.createBitmap(currentImage.cols(),currentImage.rows(),Bitmap.Config.ARGB_8888)
+            Utils.matToBitmap(currentImage,currentBitmap)
+            Utils.matToBitmap(destImage,tempbmp)
+
+            imageUri = saveImage(tempbmp)
+            println("MY IMAG URI ${imageUri}")
+
+
+
+
         } catch (e: Exception) {
             println(e)
             return "EXP : $e"
@@ -144,9 +156,33 @@ class MainActivity : FlutterActivity(){
 
 
 //  return imagePath
-        return "Pass String"
+        return imageUri?: ""
     }
+    private fun saveImage(image: Bitmap): String? {
+        //TODO - Should be processed in another thread
 
+        val imagesFolder = File(context.getCacheDir(), "images")
+
+        var filePath: String? = null
+
+        try {
+            imagesFolder.mkdirs()
+            val file = File(imagesFolder, System.currentTimeMillis().toString() + ".png")
+
+            val stream = FileOutputStream(file)
+
+            image.compress(Bitmap.CompressFormat.PNG, 90, stream)
+
+            stream.flush()
+            stream.close()
+            filePath = file.absolutePath
+
+            //            uri = FileProvider.getUriForFile(this, "com.testntrack.opencvscanner.fileprovider", file);
+        } catch (e: IOException) {
+            Log.d("dfsd", "IOException while trying to write file for sharing: " + e.message)
+        }
+        return filePath
+    }
     private val mLoaderCallback: BaseLoaderCallback = object : BaseLoaderCallback(this) {
     }
 

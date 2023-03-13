@@ -201,7 +201,7 @@ class ImageEditScreen extends StatefulWidget {
 
 class _ImageEditScreenState extends State<ImageEditScreen> {
   
-
+  String croppedImage = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -211,9 +211,9 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
           Expanded(
             child: Image.file(
                 File(
-                  widget.img.path,
+                  croppedImage.isEmpty?  widget.img.path : croppedImage,
                 ),
-                fit: BoxFit.fill),
+                ),
           ),
           Container(
             color: Colors.black,
@@ -233,7 +233,10 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                             img: widget.img,
                           ),
                         ));
+                    croppedImage = result [0];
+                    setState(() {
 
+                    });
                     debugPrint("Result DAta  ${result}");
                     // callMethodChannel();
                   },

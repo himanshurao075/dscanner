@@ -3,10 +3,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'dart:io' as Io;
+import 'package:image/image.dart' as Imge;
 import 'dart:ui' as ui;
 
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 class CropScreen extends StatefulWidget {
   const CropScreen({super.key, required this.img});
@@ -18,10 +20,13 @@ class CropScreen extends StatefulWidget {
 class _CropScreenState extends State<CropScreen> {
   Future<ui.Image> getImage() async {
     final imgCompletor = Completer<ui.Image>();
+    Size size = MediaQuery.of(context).size;
 
     final m = MemoryImage(await widget.img.readAsBytes());
+   final resizedImage= ResizeImage(m,width: size.width.toInt(),height: size.height.toInt());
 
-    m
+    resizedImage
+    // m
         .resolve(const ImageConfiguration(size: Size(100, 100)))
         .addListener(ImageStreamListener((image, synchronousCall) {
       imgCompletor.complete(image.image);
@@ -121,13 +126,24 @@ class _CropScreenState extends State<CropScreen> {
   }
 
   static const platform = MethodChannel('samples.flutter.dev/cropImage');
+  String croppedImageString= '';
   callMethodChannel() async {
-    // String batteryLevel = 'null';
+    final size = MediaQuery.of(context).size;
+    final fileImg=  FileImage(File(widget.img.path));
+    Uint8List m =  File(widget.img.path).readAsBytesSync();
+    ui.Image x = await decodeImageFromList(m);
+    ByteData? bytes = await x.toByteData();
+
     var decodedImage =
-        await decodeImageFromList(File(widget.img.path).readAsBytesSync());
+        await decodeImageFromList(File( widget.img.path).readAsBytesSync());
+ final img = ResizeImage(FileImage(File(widget.img.path),),width: size.width.toInt(),height: size.height.toInt());
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String appDocPath =  appDocDir.absolute.path;
+final imgPath = await File(appDocPath).writeAsBytes( bytes!.buffer.asUint8List(),mode: FileMode.write);
+//     final imgPath = appDocPath;
     try {
       final String result = await platform.invokeMethod('cropImage', {
-        "imgPath": widget.img.path,
+        "imgPath":imgPath ,
         "x1": touchPointer1.dx,
         "x2": touchPointer2.dx,
         "x3": touchPointer3.dx,
@@ -141,6 +157,8 @@ class _CropScreenState extends State<CropScreen> {
       });
       // batteryLevel = 'Battery level at $result % .';
       debugPrint("Method Channel Result : $result");
+     croppedImageString  = result;
+
     } on PlatformException catch (e) {
       debugPrint("Failed to get battery level: '${e.message}'.");
     }
@@ -155,9 +173,11 @@ class _CropScreenState extends State<CropScreen> {
     touchPointer4 = Offset(300, size.dy + 100);
     return WillPopScope(
       onWillPop: () async {
-        callMethodChannel();
-        Navigator.pop(context,
-            [touchPointer1, touchPointer2, touchPointer3, touchPointer4]);
+      await  callMethodChannel();
+         Navigator.pop(context,
+            [
+              croppedImageString,
+              touchPointer1, touchPointer2, touchPointer3, touchPointer4]);
         return false;
       },
       child: Container(
@@ -244,6 +264,7 @@ class CustomCropPainter extends CustomPainter {
   final Offset touchPointer4;
   @override
   void paint(Canvas canvas, Size size) async {
+
     var paint = Paint()
       ..style = PaintingStyle.fill
       ..color = Colors.white
@@ -253,8 +274,9 @@ class CustomCropPainter extends CustomPainter {
         canvas: canvas,
         rect: Rect.fromCenter(
             center: size.center(Offset.zero),
-            width: size.width,
-            height: size.height),
+            width: img.width.toDouble(),
+            height: img.height.toDouble()),
+
         image: img);
 
     canvas.drawCircle(touchPointer1, 15, paint);
