@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io' as Io;
-import 'package:image/image.dart' as Imge;
+import 'package:image/image.dart' as Image;
 import 'dart:ui' as ui;
 
 import 'package:image_picker/image_picker.dart';
@@ -129,21 +129,24 @@ class _CropScreenState extends State<CropScreen> {
   String croppedImageString= '';
   callMethodChannel() async {
     final size = MediaQuery.of(context).size;
-    final fileImg=  FileImage(File(widget.img.path));
-    Uint8List m =  File(widget.img.path).readAsBytesSync();
-    ui.Image x = await decodeImageFromList(m);
-    ByteData? bytes = await x.toByteData();
+   // final image = await getImage();
+   //  final byte = await image.toByteData();
+   //
+   //  // final fileImg=  FileImage(File(widget.img.path));
+   //  // Uint8List m =  File(widget.img.path).readAsBytesSync();
+   //  // // ui.Image x = await decodeImageFromList(m);
+   //  // // ByteData? bytes = await x.toByteData();
+   //  // Image.Image decodedImage = Image.decodeImage(m) as Image.Image;
+   //  // Image.Image thumbnail = Image.copyResize(decodedImage, width: 60);
+   //  // List<int> resizedIntList = thumbnail.getBytes();
+   // Directory docDir = await getApplicationDocumentsDirectory();
+   // String cahcePath = docDir.path;
+   //  final fout =await File(cahcePath).writeAsBytes(byte!.buffer.asUint8List());
+   //  String imgPath = fout.path ;
 
-    var decodedImage =
-        await decodeImageFromList(File( widget.img.path).readAsBytesSync());
- final img = ResizeImage(FileImage(File(widget.img.path),),width: size.width.toInt(),height: size.height.toInt());
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String appDocPath =  appDocDir.absolute.path;
-final imgPath = await File(appDocPath).writeAsBytes( bytes!.buffer.asUint8List(),mode: FileMode.write);
-//     final imgPath = appDocPath;
     try {
       final String result = await platform.invokeMethod('cropImage', {
-        "imgPath":imgPath ,
+        "imgPath":widget.img.path ,
         "x1": touchPointer1.dx,
         "x2": touchPointer2.dx,
         "x3": touchPointer3.dx,
@@ -152,8 +155,8 @@ final imgPath = await File(appDocPath).writeAsBytes( bytes!.buffer.asUint8List()
         "y2": touchPointer2.dy,
         "y3": touchPointer3.dy,
         "y4": touchPointer4.dy,
-        "height": decodedImage.height,
-        "width": decodedImage.width
+        "height": 1080,
+        "width": 720
       });
       // batteryLevel = 'Battery level at $result % .';
       debugPrint("Method Channel Result : $result");
@@ -181,6 +184,8 @@ final imgPath = await File(appDocPath).writeAsBytes( bytes!.buffer.asUint8List()
         return false;
       },
       child: Container(
+        height: 1080,
+        width: 720,
         child: FutureBuilder<ui.Image>(
             future: getImage(),
             builder: (context, snap) {
@@ -232,6 +237,7 @@ final imgPath = await File(appDocPath).writeAsBytes( bytes!.buffer.asUint8List()
                       return CustomPaint(
                           key: paintKey,
                           willChange: true,
+                          size: const Size(720,1080),
                           painter: CustomCropPainter(
                             img: snap.data!,
                             touchPointer1: touchPointer1,
@@ -264,18 +270,16 @@ class CustomCropPainter extends CustomPainter {
   final Offset touchPointer4;
   @override
   void paint(Canvas canvas, Size size) async {
-
     var paint = Paint()
       ..style = PaintingStyle.fill
       ..color = Colors.white
       ..isAntiAlias = true;
-
     paintImage(
         canvas: canvas,
         rect: Rect.fromCenter(
             center: size.center(Offset.zero),
-            width: img.width.toDouble(),
-            height: img.height.toDouble()),
+            width: 720,
+            height: 1080),
 
         image: img);
 
