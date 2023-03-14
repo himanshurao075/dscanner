@@ -128,22 +128,22 @@ class _CropScreenState extends State<CropScreen> {
   static const platform = MethodChannel('samples.flutter.dev/cropImage');
   String croppedImageString= '';
   callMethodChannel() async {
-    final size = MediaQuery.of(context).size;
-    final fileImg=  FileImage(File(widget.img.path));
-    Uint8List m =  File(widget.img.path).readAsBytesSync();
-    ui.Image x = await decodeImageFromList(m);
-    ByteData? bytes = await x.toByteData();
-
+ //    final size = MediaQuery.of(context).size;
+ //    final fileImg=  FileImage(File(widget.img.path));
+ //    Uint8List m =  File(widget.img.path).readAsBytesSync();
+ //    ui.Image x = await decodeImageFromList(m);
+ //    ByteData? bytes = await x.toByteData();
+ //
     var decodedImage =
         await decodeImageFromList(File( widget.img.path).readAsBytesSync());
- final img = ResizeImage(FileImage(File(widget.img.path),),width: size.width.toInt(),height: size.height.toInt());
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String appDocPath =  appDocDir.absolute.path;
-final imgPath = await File(appDocPath).writeAsBytes( bytes!.buffer.asUint8List(),mode: FileMode.write);
+ // final img = ResizeImage(FileImage(File(widget.img.path),),width: size.width.toInt(),height: size.height.toInt());
+ //    Directory appDocDir = await getApplicationDocumentsDirectory();
+ //    String appDocPath =  appDocDir.absolute.path;
+// final imgPath = await File(appDocPath).writeAsBytes( bytes!.buffer.asUint8List(),mode: FileMode.write);
 //     final imgPath = appDocPath;
     try {
       final String result = await platform.invokeMethod('cropImage', {
-        "imgPath":imgPath ,
+        "imgPath":widget.img.path,
         "x1": touchPointer1.dx,
         "x2": touchPointer2.dx,
         "x3": touchPointer3.dx,
@@ -158,11 +158,13 @@ final imgPath = await File(appDocPath).writeAsBytes( bytes!.buffer.asUint8List()
       // batteryLevel = 'Battery level at $result % .';
       debugPrint("Method Channel Result : $result");
      croppedImageString  = result;
+      setState(() {
 
+      });
     } on PlatformException catch (e) {
       debugPrint("Failed to get battery level: '${e.message}'.");
     }
-  
+
   }
 
   final paintKey = GlobalKey();
@@ -173,7 +175,7 @@ final imgPath = await File(appDocPath).writeAsBytes( bytes!.buffer.asUint8List()
     touchPointer4 = Offset(300, size.dy + 100);
     return WillPopScope(
       onWillPop: () async {
-      await  callMethodChannel();
+       await callMethodChannel();
          Navigator.pop(context,
             [
               croppedImageString,

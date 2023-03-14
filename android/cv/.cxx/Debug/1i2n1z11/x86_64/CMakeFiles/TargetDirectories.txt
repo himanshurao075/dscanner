@@ -1,0 +1,3 @@
+/home/akansha/AndroidStudioProjects/dscanner/android/cv/.cxx/Debug/1i2n1z11/x86_64/CMakeFiles/rebuild_cache.dir
+/home/akansha/AndroidStudioProjects/dscanner/android/cv/.cxx/Debug/1i2n1z11/x86_64/CMakeFiles/edit_cache.dir
+/home/akansha/AndroidStudioProjects/dscanner/android/cv/.cxx/Debug/1i2n1z11/x86_64/CMakeFiles/opencv_jni_shared.dir

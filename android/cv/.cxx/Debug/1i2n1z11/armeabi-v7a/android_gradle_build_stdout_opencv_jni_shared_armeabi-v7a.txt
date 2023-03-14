@@ -1,0 +1,2 @@
+ninja: Entering directory `/home/akansha/AndroidStudioProjects/dscanner/android/cv/.cxx/Debug/1i2n1z11/armeabi-v7a'
+ninja: no work to do.

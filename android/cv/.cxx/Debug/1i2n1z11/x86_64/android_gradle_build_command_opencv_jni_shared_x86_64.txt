@@ -1,0 +1,7 @@
+Executable : /home/akansha/Android/Sdk/cmake/3.18.1/bin/ninja
+arguments : 
+-C
+/home/akansha/AndroidStudioProjects/dscanner/android/cv/.cxx/Debug/1i2n1z11/x86_64
+opencv_jni_shared
+jvmArgs : 
+
