@@ -34,8 +34,6 @@ class MainActivity : FlutterActivity(){
             CHANNEL
         ).setMethodCallHandler { call, result ->
             if (call.method == "cropImage") {
-
-
                 val x1: Double = call.argument("x1")!!
                 val x2: Double = call.argument("x2")!!
                 val x3: Double = call.argument("x3")!!

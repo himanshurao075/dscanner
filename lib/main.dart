@@ -176,8 +176,9 @@ class _MainAppState extends State<MainApp> {
   }
 
   retake(int index) async {
+    Size size =MediaQuery.of(context).size;
     final ImagePicker picker = ImagePicker();
-    final tempImage = await picker.pickImage(source: ImageSource.gallery);
+    final tempImage = await picker.pickImage(source: ImageSource.gallery,maxHeight:1080,maxWidth:720, );
     if (tempImage != null) pickedImages[index] = tempImage;
     setState(() {});
   }
@@ -212,7 +213,9 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
             child: Image.file(
                 File(
                   croppedImage.isEmpty?  widget.img.path : croppedImage,
+
                 ),
+              fit: BoxFit.contain,
                 ),
           ),
           Container(

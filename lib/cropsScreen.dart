@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io' as Io;
-import 'package:image/image.dart' as Imge;
+import 'package:image/image.dart' as Image;
 import 'dart:ui' as ui;
 
 import 'package:image_picker/image_picker.dart';
@@ -128,6 +128,7 @@ class _CropScreenState extends State<CropScreen> {
   static const platform = MethodChannel('samples.flutter.dev/cropImage');
   String croppedImageString= '';
   callMethodChannel() async {
+<<<<<<< HEAD
  //    final size = MediaQuery.of(context).size;
  //    final fileImg=  FileImage(File(widget.img.path));
  //    Uint8List m =  File(widget.img.path).readAsBytesSync();
@@ -144,6 +145,27 @@ class _CropScreenState extends State<CropScreen> {
     try {
       final String result = await platform.invokeMethod('cropImage', {
         "imgPath":widget.img.path,
+=======
+    final size = MediaQuery.of(context).size;
+   // final image = await getImage();
+   //  final byte = await image.toByteData();
+   //
+   //  // final fileImg=  FileImage(File(widget.img.path));
+   //  // Uint8List m =  File(widget.img.path).readAsBytesSync();
+   //  // // ui.Image x = await decodeImageFromList(m);
+   //  // // ByteData? bytes = await x.toByteData();
+   //  // Image.Image decodedImage = Image.decodeImage(m) as Image.Image;
+   //  // Image.Image thumbnail = Image.copyResize(decodedImage, width: 60);
+   //  // List<int> resizedIntList = thumbnail.getBytes();
+   // Directory docDir = await getApplicationDocumentsDirectory();
+   // String cahcePath = docDir.path;
+   //  final fout =await File(cahcePath).writeAsBytes(byte!.buffer.asUint8List());
+   //  String imgPath = fout.path ;
+
+    try {
+      final String result = await platform.invokeMethod('cropImage', {
+        "imgPath":widget.img.path ,
+>>>>>>> origin/himansh
         "x1": touchPointer1.dx,
         "x2": touchPointer2.dx,
         "x3": touchPointer3.dx,
@@ -152,8 +174,8 @@ class _CropScreenState extends State<CropScreen> {
         "y2": touchPointer2.dy,
         "y3": touchPointer3.dy,
         "y4": touchPointer4.dy,
-        "height": decodedImage.height,
-        "width": decodedImage.width
+        "height": 1080,
+        "width": 720
       });
       // batteryLevel = 'Battery level at $result % .';
       debugPrint("Method Channel Result : $result");
@@ -183,6 +205,8 @@ class _CropScreenState extends State<CropScreen> {
         return false;
       },
       child: Container(
+        height: 1080,
+        width: 720,
         child: FutureBuilder<ui.Image>(
             future: getImage(),
             builder: (context, snap) {
@@ -234,6 +258,7 @@ class _CropScreenState extends State<CropScreen> {
                       return CustomPaint(
                           key: paintKey,
                           willChange: true,
+                          size: const Size(720,1080),
                           painter: CustomCropPainter(
                             img: snap.data!,
                             touchPointer1: touchPointer1,
@@ -266,18 +291,16 @@ class CustomCropPainter extends CustomPainter {
   final Offset touchPointer4;
   @override
   void paint(Canvas canvas, Size size) async {
-
     var paint = Paint()
       ..style = PaintingStyle.fill
       ..color = Colors.white
       ..isAntiAlias = true;
-
     paintImage(
         canvas: canvas,
         rect: Rect.fromCenter(
             center: size.center(Offset.zero),
-            width: img.width.toDouble(),
-            height: img.height.toDouble()),
+            width: 720,
+            height: 1080),
 
         image: img);
 
