@@ -176,9 +176,13 @@ class _MainAppState extends State<MainApp> {
   }
 
   retake(int index) async {
-    Size size =MediaQuery.of(context).size;
+    Size size = MediaQuery.of(context).size;
     final ImagePicker picker = ImagePicker();
-    final tempImage = await picker.pickImage(source: ImageSource.gallery,maxHeight:1080,maxWidth:720, );
+    final tempImage = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxHeight: 1080,
+      maxWidth: 720,
+    );
     if (tempImage != null) pickedImages[index] = tempImage;
     setState(() {});
   }
@@ -201,7 +205,6 @@ class ImageEditScreen extends StatefulWidget {
 }
 
 class _ImageEditScreenState extends State<ImageEditScreen> {
-  
   String croppedImage = '';
   @override
   Widget build(BuildContext context) {
@@ -209,15 +212,27 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
       appBar: AppBar(title: const Text("Edit Image")),
       body: Column(
         children: [
-          Expanded(
-            child: Image.file(
+          if (croppedImage.isNotEmpty)
+            Expanded(
+              child: Image.file(
                 File(
-                  croppedImage.isEmpty?  widget.img.path : croppedImage,
-
+                  croppedImage,
                 ),
-              fit: BoxFit.contain,
-                ),
-          ),
+                fit: BoxFit.contain,
+                height: 1080,
+                width: 720,
+              ),
+            ),
+          if (croppedImage.isEmpty)
+            Expanded(
+              child: Image.file(
+                File(widget.img.path),
+                fit: BoxFit.fill,
+                // height: 1080,
+                //   width: 720,
+              ),
+            ),
+          if (croppedImage.isNotEmpty) const Spacer(),
           Container(
             color: Colors.black,
             child: ButtonBar(
@@ -236,10 +251,11 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                             img: widget.img,
                           ),
                         ));
-                    croppedImage = result [0];
-                    setState(() {
-
-                    });
+                    croppedImage = result[0];
+                    final file = File(croppedImage);
+                    var decodedImage =
+                        await decodeImageFromList(file.readAsBytesSync());
+                    setState(() {});
                     debugPrint("Result DAta  ${result}");
                     // callMethodChannel();
                   },

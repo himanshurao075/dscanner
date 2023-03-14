@@ -114,15 +114,14 @@ class MainActivity : FlutterActivity(){
 //    val src = MatOfPoint2f(
 //            sortedPoints.get(0),
 //            sortedPoints.get(1),
-//            sortedPoints.get(2),
-//            sortedPoints.get(3))
+//sortedPoints.get(2),
+//sortedPoints.get(3))
 
-            val currentImage = Mat()
+      val currentImage = Mat()
 
 //    val bmp32: Bitmap = bmp.copy(Bitmap.Config.ARGB_8888, true)
             Utils.bitmapToMat(bitmap, currentImage)
-
-//                src.adjustROI(lineWidth, lineWidth, lineWidth, lineWidth);
+//    src.adjustROI(lineWidth, lineWidth, lineWidth, lineWidth);
 
             val dst = MatOfPoint2f(
                 Point(0.0, 0.0),
