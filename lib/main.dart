@@ -24,6 +24,7 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   List<XFile> pickedImages = [];
+  var pickedImage ;
 
   @override
   Widget build(BuildContext context) {
@@ -33,14 +34,28 @@ class _MainAppState extends State<MainApp> {
       ),
       floatingActionButton: pickedImages.isNotEmpty
           ? null
-          : FloatingActionButton(
-              onPressed: () async {
-                final ImagePicker picker = ImagePicker();
-                pickedImages = await picker.pickMultiImage();
-                setState(() {});
-              },
-              child: const Icon(Icons.add),
-            ),
+          : Row(
+            children: [
+              FloatingActionButton(
+                  onPressed: () async {
+                    final ImagePicker picker = ImagePicker();
+                    pickedImages = await picker.pickMultiImage();
+                    setState(() {});
+                  },
+                  child: const Icon(Icons.add),
+                ), FloatingActionButton(
+                  onPressed: () async {
+
+                    final ImagePicker picker = ImagePicker();
+                    pickedImage=  await picker.pickImage(source: ImageSource.camera,);
+print(pickedImage);
+                    pickedImages.add(pickedImage);
+                    setState(() {});
+                  },
+                  child: const Icon(Icons.camera_alt_outlined),
+                ),
+            ],
+          ),
       body: pickedImages.isEmpty
           ? const Center(
               child: Text('Press + to add images'),
@@ -77,12 +92,17 @@ class _MainAppState extends State<MainApp> {
                                             child: CircleAvatar(
                                           child: InkWell(
                                             onTap: () async {
-                                              final ImagePicker picker =
-                                                  ImagePicker();
-                                              final tempImages =
-                                                  await picker.pickMultiImage();
-                                              pickedImages.addAll(tempImages);
+                                              final ImagePicker picker = ImagePicker();
+                                              pickedImage=  await picker.pickImage(source: ImageSource.camera,);
+
+                                              pickedImages.add(pickedImage);
                                               setState(() {});
+                                              // final ImagePicker picker =
+                                              //     ImagePicker();
+                                              // final tempImages =
+                                              //     await picker.pickMultiImage();
+                                              // pickedImages.addAll(tempImages);
+                                              // setState(() {});
                                             },
                                             child: const Icon(
                                               Icons.add,
@@ -176,9 +196,13 @@ class _MainAppState extends State<MainApp> {
   }
 
   retake(int index) async {
-    Size size =MediaQuery.of(context).size;
+    Size size = MediaQuery.of(context).size;
     final ImagePicker picker = ImagePicker();
-    final tempImage = await picker.pickImage(source: ImageSource.gallery,maxHeight:1080,maxWidth:720, );
+    final tempImage = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxHeight: 1080,
+      maxWidth: 720,
+    );
     if (tempImage != null) pickedImages[index] = tempImage;
     setState(() {});
   }
@@ -200,24 +224,46 @@ class ImageEditScreen extends StatefulWidget {
   State<ImageEditScreen> createState() => _ImageEditScreenState();
 }
 
-class _ImageEditScreenState extends State<ImageEditScreen> {
-  
+class _ImageEditScreenState extends State<ImageEditScreen> { static const platform = MethodChannel('samples.flutter.dev/cropImage');
   String croppedImage = '';
+  Uint8List? rotatedBytes ;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Edit Image")),
       body: Column(
         children: [
-          Expanded(
-            child: Image.file(
-                File(
-                  croppedImage.isEmpty?  widget.img.path : croppedImage,
 
+          if(rotatedBytes!=null)
+            Expanded(
+              child: Image.memory(
+                rotatedBytes!,
+                fit: BoxFit.contain,
+                height: 1080,
+                width: 720,
+              ),
+            ),
+          if (croppedImage.isNotEmpty && rotatedBytes ==null)
+            Expanded(
+              child: Image.file(
+                File(
+                  croppedImage,
                 ),
-              fit: BoxFit.contain,
-                ),
-          ),
+                fit: BoxFit.contain,
+                height: 1080,
+                width: 720,
+              ),
+            ),
+          if (croppedImage.isEmpty && rotatedBytes ==null)
+            Expanded(
+              child: Image.file(
+                File(widget.img.path),
+                fit: BoxFit.fill,
+                // height: 1080,
+                //   width: 720,
+              ),
+            ),
+          if (croppedImage.isNotEmpty) const Spacer(),
           Container(
             color: Colors.black,
             child: ButtonBar(
@@ -236,11 +282,12 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                             img: widget.img,
                           ),
                         ));
-                    croppedImage = result [0];
-                    setState(() {
-
-                    });
-                    debugPrint("Result DAta  ${result}");
+                    croppedImage = result[0];
+                    final file = File(croppedImage);
+                    var decodedImage =
+                        await decodeImageFromList(file.readAsBytesSync());
+                    setState(() {});
+                    debugPrint("Result DAta  $result");
                     // callMethodChannel();
                   },
                   child: const Icon(
@@ -252,7 +299,16 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                   Icons.brightness_4_outlined,
                   color: Colors.white,
                 ),
-                const Icon(Icons.rotate_90_degrees_ccw, color: Colors.white)
+                 IconButton(icon: const Icon(Icons.rotate_90_degrees_ccw), onPressed: ()async{
+                 Uint8List rotateImage =  await platform.invokeMethod('rotate',
+                     {"bytes":(await File(widget.img.path).readAsBytes())});
+                 rotatedBytes = rotateImage;
+
+                 // croppedImage = XFile.fromData(rotateImage).path;
+                 setState(() {
+
+                 });
+                 },color: Colors.white)
               ],
             ),
           )

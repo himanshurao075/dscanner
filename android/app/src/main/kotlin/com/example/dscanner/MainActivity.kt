@@ -2,6 +2,8 @@ package com.example.dscanner
 
 
 import android.annotation.TargetApi
+
+import android.graphics.Matrix
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -23,9 +25,12 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
+import java.io.*
 
 
-class MainActivity : FlutterActivity(){
+class MainActivity : FlutterActivity() {
+
+
     private val CHANNEL = "samples.flutter.dev/cropImage"
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -67,12 +72,50 @@ class MainActivity : FlutterActivity(){
 //          } else {
 //          result.error("UNAVAILABLE", "Battery level not available.", null)
 //        }
+            }
+            if (call.method == "rotate") {
+//            val byteArray: ByteArray
+                val byteArray: ByteArray = call.argument("bytes")!!
+                val rotateThread = RotateThread(byteArray)
+                rotateThread.start()
+                result.success(byteArray)
+            }
+            if (call.method == "rotateCompleted") {
+                val byteArray: ByteArray = call.argument("bytes")!!
+                result.success(byteArray)
             } else {
                 result.notImplemented()
             }
         }
     }
 
+    internal class RotateThread(bytes: ByteArray) : Thread() {
+        var byteArray: ByteArray
+
+        init {
+            byteArray = bytes
+        }
+
+
+        override fun run(): Unit{
+            System.out.println("started")
+            val matrix = Matrix()
+            matrix.postRotate(90.toFloat())
+            val bitmap: Bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+            val rotatedBitmap: Bitmap = Bitmap.createBitmap(
+                bitmap,
+                0,
+                0,
+                bitmap.getWidth(),
+                bitmap.getHeight(),
+                matrix,
+                true
+            )
+            val stream = ByteArrayOutputStream()
+            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            byteArray = stream.toByteArray()
+        }
+    }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private fun cropImage(
@@ -88,7 +131,7 @@ class MainActivity : FlutterActivity(){
         imgHeight: Double,
         inputImg: String
     ): String {
-        var  imageUri :String? = ""
+        var imageUri: String? = ""
 //    val sd: File = Environment.getExternalStorageDirectory()
         val image = File(inputImg)
         try {
@@ -112,15 +155,14 @@ class MainActivity : FlutterActivity(){
 //    val src = MatOfPoint2f(
 //            sortedPoints.get(0),
 //            sortedPoints.get(1),
-//            sortedPoints.get(2),
-//            sortedPoints.get(3))
+//sortedPoints.get(2),
+//sortedPoints.get(3))
 
             val currentImage = Mat()
 
 //    val bmp32: Bitmap = bmp.copy(Bitmap.Config.ARGB_8888, true)
             Utils.bitmapToMat(bitmap, currentImage)
-
-//                src.adjustROI(lineWidth, lineWidth, lineWidth, lineWidth);
+//    src.adjustROI(lineWidth, lineWidth, lineWidth, lineWidth);
 
             val dst = MatOfPoint2f(
                 Point(0.0, 0.0),
@@ -134,17 +176,20 @@ class MainActivity : FlutterActivity(){
             // Imgproc.cvtColor(currentImage,destImage,Imgproc.COLOR_RGBA2GRAY);
             Imgproc.warpPerspective(currentImage, destImage, warpMat, Size(imgWidth, imgHeight))
 //
-            val tempbmp = Bitmap.createBitmap(destImage.cols(), destImage.rows(), Bitmap.Config.ARGB_8888)
+            val tempbmp =
+                Bitmap.createBitmap(destImage.cols(), destImage.rows(), Bitmap.Config.ARGB_8888)
             Utils.matToBitmap(destImage, tempbmp);
 
-            val currentBitmap = Bitmap.createBitmap(currentImage.cols(),currentImage.rows(),Bitmap.Config.ARGB_8888)
-            Utils.matToBitmap(currentImage,currentBitmap)
-            Utils.matToBitmap(destImage,tempbmp)
+            val currentBitmap = Bitmap.createBitmap(
+                currentImage.cols(),
+                currentImage.rows(),
+                Bitmap.Config.ARGB_8888
+            )
+            Utils.matToBitmap(currentImage, currentBitmap)
+            Utils.matToBitmap(destImage, tempbmp)
 
             imageUri = saveImage(tempbmp)
             println("MY IMAG URI ${imageUri}")
-
-
 
 
         } catch (e: Exception) {
@@ -154,8 +199,9 @@ class MainActivity : FlutterActivity(){
 
 
 //  return imagePath
-        return imageUri?: ""
+        return imageUri ?: ""
     }
+
     private fun saveImage(image: Bitmap): String? {
         //TODO - Should be processed in another thread
 
@@ -181,6 +227,7 @@ class MainActivity : FlutterActivity(){
         }
         return filePath
     }
+
     private val mLoaderCallback: BaseLoaderCallback = object : BaseLoaderCallback(this) {
     }
 
