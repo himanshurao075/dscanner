@@ -236,7 +236,11 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
   static const platform = MethodChannel('samples.flutter.dev/cropImage');
   String croppedImage = '';
   var rotatedBytes;
-
+  int buttonIndex =-1;
+  getFilteredImages() async{
+    dynamic  result = await platform.invokeMethod("filtersImages",{"imgPath":widget.img.path});
+    debugPrint(result.toString());
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -246,10 +250,10 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
           if (rotatedBytes != null)
             Expanded(
               child: Image.file(
-                File(rotatedBytes!),
-                fit: BoxFit.contain,
-                height: 1080,
-                width: 720,
+                File(rotatedBytes),
+                // fit: BoxFit.contain,
+                // height: 1080,
+                // width: 720,
               ),
             ),
           if (croppedImage.isNotEmpty && rotatedBytes == null)
@@ -273,17 +277,43 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
               ),
             ),
           if (croppedImage.isNotEmpty) const Spacer(),
+          if(buttonIndex==0)Container(
+            color: Colors.black,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(3, (index) => Column(
+                  children: [
+                    Container(height: 100,width: 80,color: Colors.white,),
+                    Text("Original")
+                  ],
+                )),),
+            ),),
           Container(
             color: Colors.black,
             child: ButtonBar(
               alignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const Icon(
-                  Icons.filter,
-                  color: Colors.white,
+                InkWell(
+                  onTap : (){
+                    buttonIndex=0;
+                    getFilteredImages();
+                    setState(() {
+
+                    });
+                  },
+                  child: const Icon(
+                    Icons.filter,
+                    color: Colors.white,
+                  ),
                 ),
                 InkWell(
                   onTap: () async {
+                    buttonIndex =1;
+                    setState(() {
+
+                    });
                     final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -311,13 +341,17 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                 IconButton(
                     icon: const Icon(Icons.rotate_90_degrees_ccw),
                     onPressed: () async {
+
+                      String img = widget.img.path;
+                      print("Before rotation $img");
                       var rotateImage =
                       await platform.invokeMethod('rotate', {
                         "imgPath": widget.img.path,
                         "angle": 90.0,
                       });
-                      rotatedBytes = rotateImage;
+                       rotatedBytes = rotateImage;
                       print(rotateImage);
+                      print("After rotation ${rotatedBytes}");
 
                       // croppedImage = XFile.fromData(rotateImage).path;
                       setState(() {});

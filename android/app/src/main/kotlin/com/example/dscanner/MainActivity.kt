@@ -75,6 +75,76 @@ class MainActivity : FlutterActivity() {
 //          result.error("UNAVAILABLE", "Battery level not available.", null)
 //        }
             }
+            if(call.method=="filtersImages")
+            {val imgPath: String = call.argument("imgPath")!!
+                val image = File(imgPath)
+                val bmOptions: BitmapFactory.Options = BitmapFactory.Options()
+                var bitmap: Bitmap = BitmapFactory.decodeFile(image.path, bmOptions)
+
+                println("flow 1")
+                var whiteboardBitmap :Bitmap=   BitmapFactory.decodeFile(image.path, bmOptions)
+                val currentImage = Mat()
+                val whiteboardMat = Mat()
+                val grayscaleMat = Mat()
+                val adaptiveMat = Mat()
+                val blurMat = Mat()
+                println("flow 2")
+                val grayImgUri : String
+                val whiteboardImgUri : String
+
+                println("flow 3")
+
+                try{
+
+                    Utils.bitmapToMat(bitmap, currentImage)
+                    var grayBitmap : Bitmap=  Bitmap.createBitmap(
+                        currentImage.cols(),
+                        currentImage.rows(),
+                        Bitmap.Config.ARGB_8888
+                    )
+                Imgproc.cvtColor(currentImage,grayscaleMat,Imgproc.COLOR_BGR2GRAY);
+                    println("flow 4")
+
+                Utils.matToBitmap(grayscaleMat,grayBitmap);
+                    println("flow 4-2")
+
+                    grayImgUri = saveImage(grayBitmap)
+
+                    println("flow 5")
+
+
+                Imgproc.adaptiveThreshold(
+                    currentImage, adaptiveMat,
+                    255.0,
+                    Imgproc.ADAPTIVE_THRESH_MEAN_C,
+                    Imgproc.THRESH_BINARY,
+                    401,
+                    14.0
+                )
+                    println("flow 5-1")
+
+                    Imgproc.GaussianBlur(adaptiveMat, blurMat, Size(5.0, 5.0), 0.0)
+                    println("flow 5-2")
+
+                Core.addWeighted(blurMat, 0.5, currentImage, 0.5, 1.0, whiteboardMat)
+                    println("flow 5-3")
+
+                Utils.matToBitmap(whiteboardMat, whiteboardBitmap)
+                    println("flow 5-4")
+
+                    whiteboardImgUri = saveImage(whiteboardBitmap)
+                    println("flow 6")
+
+               } catch (e: Exception) {
+                   println(e)
+                   result.success("FilteredImgException $e")
+               }
+
+                val resltList = listOf(1, 2, 3, 4, 5)
+
+
+                result.success(resltList)
+            }
             if (call.method == "rotate") {
                 val imgPath: String = call.argument("imgPath")!!
                 val angle: Double = call.argument("angle")!!
@@ -258,30 +328,44 @@ class MainActivity : FlutterActivity() {
         return imageUri ?: ""
     }
 
-    private fun saveImage(image: Bitmap): String? {
+    private fun saveImage(image: Bitmap): String {
         //TODO - Should be processed in another thread
 
         val imagesFolder = File(context.getCacheDir(), "images")
 
         var filePath: String? = null
-
+        println("func flow 1")
         try {
             imagesFolder.mkdirs()
             val file = File(imagesFolder, System.currentTimeMillis().toString() + ".png")
+            println("func flow 2")
 
             val stream = FileOutputStream(file)
+            println("func flow 3")
 
             image.compress(Bitmap.CompressFormat.PNG, 90, stream)
+            println("func flow 4")
 
             stream.flush()
             stream.close()
+            println("func flow 5")
+
             filePath = file.absolutePath
+            println("func flow 6")
 
             //            uri = FileProvider.getUriForFile(this, "com.testntrack.opencvscanner.fileprovider", file);
         } catch (e: IOException) {
+            println("func flow 7")
+
             Log.d("dfsd", "IOException while trying to write file for sharing: " + e.message)
+            println("func flow 8")
+
         }
-        return filePath
+        println("func flow 9")
+        var result : String = ""
+        result = filePath?:""
+        println("func flow 10")
+        return result
     }
 
     private val mLoaderCallback: BaseLoaderCallback = object : BaseLoaderCallback(this) {
@@ -297,3 +381,4 @@ class MainActivity : FlutterActivity() {
         }
     }
 }
+
