@@ -2,7 +2,10 @@ package com.example.dscanner
 
 
 import android.annotation.TargetApi
-
+// import required packages
+import org.opencv.core.Core
+import org.opencv.imgcodecs.Imgcodecs
+import org.opencv.imgproc.Imgproc
 import android.graphics.Matrix
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -20,7 +23,6 @@ import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 import org.opencv.core.Size
-import org.opencv.imgproc.Imgproc
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -74,11 +76,65 @@ class MainActivity : FlutterActivity() {
 //        }
             }
             if (call.method == "rotate") {
+                val imgPath: String = call.argument("imgPath")!!
+                val angle: Double = call.argument("angle")!!
+                println(imgPath)
+                println(angle)
+                val src :Mat = Imgcodecs.imread(imgPath)
+
+                // Create empty Mat object to store output image
+                val dst : Mat=Mat()
+
+
+                // Define Rotation Angle
+
+                // Image rotation according to the angle provided
+                if (angle == 90.0 || angle == -270.0)
+
+                    Core.rotate(src, dst, Core.ROTATE_90_CLOCKWISE);
+                else if (angle == 180.0 || angle == -180.0)
+
+                    Core.rotate(src, dst, Core.ROTATE_180);
+                else if (angle == 270.0 || angle == -90.0)
+
+                    Core.rotate(src, dst,
+                        Core.ROTATE_90_COUNTERCLOCKWISE);
+                else {
+
+                    // Center of the rotation is given by
+                    // midpoint of source image :
+                    // (width/2.0,height/2.0)
+                    val rotPoint :Point= Point(src.cols() / 2.0,
+                        src.rows() / 2.0);
+
+                    // Create Rotation Matrix
+                    val rotMat :Mat = Imgproc.getRotationMatrix2D(
+                        rotPoint, angle, 1.0);
+
+                    // Apply Affine Transformation
+                    Imgproc.warpAffine(src, dst, rotMat, src.size(),
+                        Imgproc.WARP_INVERSE_MAP);
+
+                    // If counterclockwise rotation is required use
+                    // following: Imgproc.warpAffine(src, dst,
+                    // rotMat, src.size());
+                }
+
+                // Save rotated image
+
+                // Destination where rotated image is saved
+                // on local directory
+                Imgcodecs.imwrite(imgPath, dst)
+
+                // Print message for successful execution of program
+                println("Image Rotated Successfully")
+
 //            val byteArray: ByteArray
-                val byteArray: ByteArray = call.argument("bytes")!!
-                val rotateThread = RotateThread(byteArray)
-                rotateThread.start()
-                result.success(byteArray)
+//                val byteArray: ByteArray = call.argument("bytes")!!
+//                val rotateThread = RotateThread(byteArray)
+//              val temp =  rotateThread.start()
+//                println(temp)
+                result.success(imgPath)
             }
             if (call.method == "rotateCompleted") {
                 val byteArray: ByteArray = call.argument("bytes")!!
@@ -189,7 +245,7 @@ class MainActivity : FlutterActivity() {
             Utils.matToBitmap(destImage, tempbmp)
 
             imageUri = saveImage(tempbmp)
-            println("MY IMAG URI ${imageUri}")
+            println("MY IMAGE URI $imageUri")
 
 
         } catch (e: Exception) {
