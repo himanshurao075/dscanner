@@ -317,6 +317,9 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                         "angle": 90.0,
                       });
                       rotatedBytes = rotateImage;
+                      setState(() {
+
+                      });
                       print(rotateImage);
 
                       // croppedImage = XFile.fromData(rotateImage).path;

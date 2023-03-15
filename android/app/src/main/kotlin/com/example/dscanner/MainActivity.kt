@@ -75,6 +75,7 @@ class MainActivity : FlutterActivity() {
 //          result.error("UNAVAILABLE", "Battery level not available.", null)
 //        }
             }
+
             if (call.method == "rotate") {
                 val imgPath: String = call.argument("imgPath")!!
                 val angle: Double = call.argument("angle")!!
