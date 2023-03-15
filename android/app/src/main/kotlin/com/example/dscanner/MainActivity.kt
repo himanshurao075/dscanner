@@ -84,42 +84,54 @@ class MainActivity : FlutterActivity() {
                 println("flow 1")
                 var whiteboardBitmap :Bitmap=   BitmapFactory.decodeFile(image.path, bmOptions)
                 val currentImage = Mat()
-                val whiteboardMat = Mat()
-                val grayscaleMat = Mat()
-                val adaptiveMat = Mat()
+                val currentImage2 = Mat()
+                val options: BitmapFactory.Options = BitmapFactory.Options()
+                options.inJustDecodeBounds = true
+                BitmapFactory.decodeFile(File(imgPath).getAbsolutePath(), options)
+                val imageHeight: Int = options.outHeight
+                val imageWidth: Int = options.outWidth
+//                val currentImage2 =  Mat(imageHeight, imageWidth, CvType.CV_8U/*.CV_8UC1*/);
+                var whiteboardMat: Mat = Mat()
+
+                var adaptiveMat = Mat()
                 val blurMat = Mat()
                 println("flow 2")
-                val grayImgUri : String
-                val whiteboardImgUri : String
+                var grayImgUri : String = ""
+                var whiteboardImgUri : String = ""
 
                 println("flow 3")
 
                 try{
 
                     Utils.bitmapToMat(bitmap, currentImage)
+                    Utils.bitmapToMat(bitmap, currentImage2)
+                    var grayscaleMat:Mat = Mat()
                     var grayBitmap : Bitmap=  Bitmap.createBitmap(
-                        currentImage.cols(),
-                        currentImage.rows(),
+                        currentImage2.cols(),
+                        currentImage2.rows(),
                         Bitmap.Config.ARGB_8888
                     )
-                Imgproc.cvtColor(currentImage,grayscaleMat,Imgproc.COLOR_BGR2GRAY);
+                Imgproc.cvtColor(currentImage,currentImage,Imgproc.COLOR_BGR2GRAY);
+                    println("flow 4")
+
+                    Imgproc.cvtColor(currentImage2,grayscaleMat,Imgproc.COLOR_BGR2GRAY);
                     println("flow 4")
 
                 Utils.matToBitmap(grayscaleMat,grayBitmap);
                     println("flow 4-2")
-
+//
                     grayImgUri = saveImage(grayBitmap)
 
                     println("flow 5")
 
-
+//                    Imgproc.threshold(grayscaleMat, adaptiveMat, 200.0, 255.0, Imgproc.THRESH_BINARY)
                 Imgproc.adaptiveThreshold(
                     currentImage, adaptiveMat,
                     255.0,
                     Imgproc.ADAPTIVE_THRESH_MEAN_C,
                     Imgproc.THRESH_BINARY,
                     401,
-                    14.0
+                    14.0,
                 )
                     println("flow 5-1")
 
@@ -140,7 +152,7 @@ class MainActivity : FlutterActivity() {
                    result.success("FilteredImgException $e")
                }
 
-                val resltList = listOf(1, 2, 3, 4, 5)
+                val resltList = listOf(imgPath, whiteboardImgUri ,grayImgUri)
 
 
                 result.success(resltList)

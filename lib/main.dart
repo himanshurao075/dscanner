@@ -237,9 +237,19 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
   String croppedImage = '';
   var rotatedBytes;
   int buttonIndex =-1;
+  List filteredImages = [];
+
   getFilteredImages() async{
-    dynamic  result = await platform.invokeMethod("filtersImages",{"imgPath":widget.img.path});
+    final result = await platform.invokeMethod("filtersImages",{"imgPath":widget.img.path});
     debugPrint(result.toString());
+    filteredImages = result;
+  }
+  String displayImg = "";
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    displayImg = widget.img.path;
   }
   @override
   Widget build(BuildContext context) {
@@ -247,35 +257,44 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
       appBar: AppBar(title: const Text("Edit Image")),
       body: Column(
         children: [
-          if (rotatedBytes != null)
-            Expanded(
-              child: Image.file(
-                File(rotatedBytes),
-                // fit: BoxFit.contain,
-                // height: 1080,
-                // width: 720,
-              ),
-            ),
-          if (croppedImage.isNotEmpty && rotatedBytes == null)
-            Expanded(
-              child: Image.file(
-                File(
-                  croppedImage,
+
+          Expanded(
+                child: Image.file(
+                  File(displayImg),
+                  // fit: BoxFit.contain,
+                  // height: 1080,
+                  // width: 720,
                 ),
-                fit: BoxFit.contain,
-                height: 1080,
-                width: 720,
               ),
-            ),
-          if (croppedImage.isEmpty && rotatedBytes == null)
-            Expanded(
-              child: Image.file(
-                File(widget.img.path),
-                fit: BoxFit.fill,
-                // height: 1080,
-                //   width: 720,
-              ),
-            ),
+          // if (rotatedBytes != null)
+          //   Expanded(
+          //     child: Image.file(
+          //       File(rotatedBytes),
+          //       // fit: BoxFit.contain,
+          //       // height: 1080,
+          //       // width: 720,
+          //     ),
+          //   ),
+          // if (croppedImage.isNotEmpty && rotatedBytes == null)
+          //   Expanded(
+          //     child: Image.file(
+          //       File(
+          //         croppedImage,
+          //       ),
+          //       fit: BoxFit.contain,
+          //       height: 1080,
+          //       width: 720,
+          //     ),
+          //   ),
+          // if (croppedImage.isEmpty && rotatedBytes == null)
+          //   Expanded(
+          //     child: Image.file(
+          //       File(widget.img.path),
+          //       fit: BoxFit.fill,
+          //       // height: 1080,
+          //       //   width: 720,
+          //     ),
+          //   ),
           if (croppedImage.isNotEmpty) const Spacer(),
           if(buttonIndex==0)Container(
             color: Colors.black,
@@ -283,12 +302,23 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(3, (index) => Column(
+                children: List.generate(3, (index) {
+                  final label= ["Original", "Whiteboard" ,"Grayscale"][index];
+                  return Column(
                   children: [
-                    Container(height: 100,width: 80,color: Colors.white,),
-                    Text("Original")
+                   filteredImages.isEmpty? Container(height: 100,width: 80,color: Colors.white,) : InkWell(
+                       onTap : () {
+                         displayImg = filteredImages[index];
+                       setState(() {
+
+                       });
+                         },
+                       child: Image.file(File(filteredImages[index]),height: 100,width: 80,)),
+
+                    Text(label,style: TextStyle(color: Colors.white),)
                   ],
-                )),),
+                );
+                }),),
             ),),
           Container(
             color: Colors.black,
@@ -296,9 +326,10 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
               alignment: MainAxisAlignment.spaceEvenly,
               children: [
                 InkWell(
-                  onTap : (){
+                  onTap : ()async{
                     buttonIndex=0;
-                    getFilteredImages();
+                   await  getFilteredImages();
+
                     setState(() {
 
                     });
@@ -322,9 +353,9 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                           ),
                         ));
                     croppedImage = result[0];
+                    displayImg = croppedImage;
                     final file = File(croppedImage);
                     var decodedImage =
-                    await decodeImageFromList(file.readAsBytesSync());
                     setState(() {});
                     debugPrint("Result DAta  $result");
                     // callMethodChannel();
@@ -350,6 +381,7 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                         "angle": 90.0,
                       });
                        rotatedBytes = rotateImage;
+                       displayImg = rotatedBytes;
                       print(rotateImage);
                       print("After rotation ${rotatedBytes}");
 
