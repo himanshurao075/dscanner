@@ -35,169 +35,169 @@ class _MainAppState extends State<MainApp> {
       floatingActionButton: pickedImages.isNotEmpty
           ? null
           : Row(
-              children: [
-                FloatingActionButton(
-                  onPressed: () async {
-                    final ImagePicker picker = ImagePicker();
-                    pickedImages = await picker.pickMultiImage();
-                    setState(() {});
-                  },
-                  child: const Icon(Icons.add),
-                ),
-                FloatingActionButton(
-                  onPressed: () async {
-                    final ImagePicker picker = ImagePicker();
-                    pickedImage = await picker.pickImage(
-                      source: ImageSource.camera,
-                    );
-                    print(pickedImage);
-                    pickedImages.add(pickedImage);
-                    setState(() {});
-                  },
-                  child: const Icon(Icons.camera_alt_outlined),
-                ),
-              ],
-            ),
+        children: [
+          FloatingActionButton(
+            onPressed: () async {
+              final ImagePicker picker = ImagePicker();
+              pickedImages = await picker.pickMultiImage();
+              setState(() {});
+            },
+            child: const Icon(Icons.add),
+          ),
+          FloatingActionButton(
+            onPressed: () async {
+              final ImagePicker picker = ImagePicker();
+              pickedImage = await picker.pickImage(
+                source: ImageSource.camera,
+              );
+              print(pickedImage);
+              pickedImages.add(pickedImage);
+              setState(() {});
+            },
+            child: const Icon(Icons.camera_alt_outlined),
+          ),
+        ],
+      ),
       body: pickedImages.isEmpty
           ? const Center(
-              child: Text('Press + to add images'),
-            )
+        child: Text('Press + to add images'),
+      )
           : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: pickedImages.length + 1,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              mainAxisSpacing: 5,
-                              crossAxisSpacing: 5,
-                              crossAxisCount: 2,
-                              childAspectRatio: 0.73),
-                      itemBuilder: (context, index) {
-                        return index == pickedImages.length
-                            ? Card(
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    side: const BorderSide(color: Colors.teal)),
-                                child: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Center(
-                                            child: CircleAvatar(
-                                          child: InkWell(
-                                            onTap: () async {
-                                              final ImagePicker picker =
-                                                  ImagePicker();
-                                              pickedImage =
-                                                  await picker.pickImage(
-                                                source: ImageSource.camera,
-                                              );
+        padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: pickedImages.length + 1,
+                gridDelegate:
+                const SliverGridDelegateWithFixedCrossAxisCount(
+                    mainAxisSpacing: 5,
+                    crossAxisSpacing: 5,
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.73),
+                itemBuilder: (context, index) {
+                  return index == pickedImages.length
+                      ? Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: const BorderSide(color: Colors.teal)),
+                    child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Column(
+                          mainAxisAlignment:
+                          MainAxisAlignment.center,
+                          children: [
+                            Center(
+                                child: CircleAvatar(
+                                  child: InkWell(
+                                    onTap: () async {
+                                      final ImagePicker picker =
+                                      ImagePicker();
+                                      pickedImage =
+                                      await picker.pickImage(
+                                        source: ImageSource.camera,
+                                      );
 
-                                              pickedImages.add(pickedImage);
-                                              setState(() {});
-                                              // final ImagePicker picker =
-                                              //     ImagePicker();
-                                              // final tempImages =
-                                              //     await picker.pickMultiImage();
-                                              // pickedImages.addAll(tempImages);
-                                              // setState(() {});
-                                            },
-                                            child: const Icon(
-                                              Icons.add,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        )),
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        const Text(
-                                          "Add more images",
-                                          style: TextStyle(
-                                              color: Colors.teal,
-                                              fontWeight: FontWeight.w500),
-                                        )
-                                      ],
-                                    )),
-                              )
-                            : Card(
-                                elevation: 5,
-                                color: Colors.teal,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "Image ${index + 1}",
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w700),
-                                          ),
-                                          ButtonBar(
-                                            children: [
-                                              InkWell(
-                                                onTap: () async {
-                                                  await edit(index);
-                                                },
-                                                child: const Icon(
-                                                  Icons.edit,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              InkWell(
-                                                onTap: () async {
-                                                  await retake(index);
-                                                },
-                                                child: const Icon(
-                                                  Icons.replay,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              InkWell(
-                                                onTap: () {
-                                                  pickedImages.removeAt(index);
-                                                  setState(() {});
-                                                },
-                                                child: const Icon(
-                                                  Icons.delete,
-                                                  color: Colors.white,
-                                                ),
-                                              )
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                      const Spacer(),
-                                      Image.file(
-                                        File(
-                                          pickedImages[index].path,
-                                        ),
-                                        height: 200,
-                                        width: double.maxFinite,
-                                        fit: BoxFit.fill,
-                                      )
-                                    ],
+                                      pickedImages.add(pickedImage);
+                                      setState(() {});
+                                      // final ImagePicker picker =
+                                      //     ImagePicker();
+                                      // final tempImages =
+                                      //     await picker.pickMultiImage();
+                                      // pickedImages.addAll(tempImages);
+                                      // setState(() {});
+                                    },
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                ),
-                              );
-                      },
-                    )
-                  ],
-                ),
-              ),
-            ),
+                                )),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            const Text(
+                              "Add more images",
+                              style: TextStyle(
+                                  color: Colors.teal,
+                                  fontWeight: FontWeight.w500),
+                            )
+                          ],
+                        )),
+                  )
+                      : Card(
+                    elevation: 5,
+                    color: Colors.teal,
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Image ${index + 1}",
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              ButtonBar(
+                                children: [
+                                  InkWell(
+                                    onTap: () async {
+                                      await edit(index);
+                                    },
+                                    child: const Icon(
+                                      Icons.edit,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () async {
+                                      await retake(index);
+                                    },
+                                    child: const Icon(
+                                      Icons.replay,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      pickedImages.removeAt(index);
+                                      setState(() {});
+                                    },
+                                    child: const Icon(
+                                      Icons.delete,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                ],
+                              )
+                            ],
+                          ),
+                          const Spacer(),
+                          Image.file(
+                            File(
+                              pickedImages[index].path,
+                            ),
+                            height: 200,
+                            width: double.maxFinite,
+                            fit: BoxFit.fill,
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -218,8 +218,8 @@ class _MainAppState extends State<MainApp> {
         context,
         MaterialPageRoute(
             builder: (context) => ImageEditScreen(
-                  img: pickedImages[index],
-                )));
+              img: pickedImages[index],
+            )));
   }
 }
 
@@ -294,7 +294,7 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                     croppedImage = result[0];
                     final file = File(croppedImage);
                     var decodedImage =
-                        await decodeImageFromList(file.readAsBytesSync());
+                    await decodeImageFromList(file.readAsBytesSync());
                     setState(() {});
                     debugPrint("Result DAta  $result");
                     // callMethodChannel();
@@ -312,7 +312,7 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                     icon: const Icon(Icons.rotate_90_degrees_ccw),
                     onPressed: () async {
                       var rotateImage =
-                          await platform.invokeMethod('rotate', {
+                      await platform.invokeMethod('rotate', {
                         "imgPath": widget.img.path,
                         "angle": 90.0,
                       });

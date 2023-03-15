@@ -24,10 +24,10 @@ class _CropScreenState extends State<CropScreen> {
 
     final m = MemoryImage(await widget.img.readAsBytes());
     final resizedImage =
-        ResizeImage(m, width: size.width.toInt(), height: size.height.toInt());
+    ResizeImage(m, width: size.width.toInt(), height: size.height.toInt());
 
     resizedImage
-        // m
+    // m
         .resolve(const ImageConfiguration(size: Size(100, 100)))
         .addListener(ImageStreamListener((image, synchronousCall) {
       imgCompletor.complete(image.image);
@@ -189,8 +189,8 @@ class _CropScreenState extends State<CropScreen> {
     touchPointer4 = Offset(300, size.dy + 100);
     return WillPopScope(
       onWillPop: () async {
-       await callMethodChannel();
-         Navigator.pop(context,
+        await callMethodChannel();
+        Navigator.pop(context,
             [
               croppedImageString,
               touchPointer1, touchPointer2, touchPointer3, touchPointer4]);
