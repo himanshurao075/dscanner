@@ -125,10 +125,10 @@ class MainActivity : FlutterActivity() {
 
                 // Destination where rotated image is saved
                 // on local directory
-                Imgcodecs.imwrite(imgPath, dst)
+                val imagetype = Imgcodecs.imwrite(imgPath, dst)
 
                 // Print message for successful execution of program
-                println("Image Rotated Successfully")
+                println("Image Rotated Successfully $imagetype")
 
 //            val byteArray: ByteArray
 //                val byteArray: ByteArray = call.argument("bytes")!!
@@ -137,10 +137,7 @@ class MainActivity : FlutterActivity() {
 //                println(temp)
                 result.success(imgPath)
             }
-            if (call.method == "rotateCompleted") {
-                val byteArray: ByteArray = call.argument("bytes")!!
-                result.success(byteArray)
-            } else {
+           else {
                 result.notImplemented()
             }
         }
