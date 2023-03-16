@@ -69,13 +69,9 @@ class MainActivity : FlutterActivity() {
                 )
                 result.success(croppedImage)
 
-//
-//        if (batteryLevel != -1) {
-//          } else {
-//          result.error("UNAVAILABLE", "Battery level not available.", null)
-//        }
+
             }
-            if(call.method=="filtersImages")
+  if(call.method=="filtersImages")
             {val imgPath: String = call.argument("imgPath")!!
                 val image = File(imgPath)
                 val bmOptions: BitmapFactory.Options = BitmapFactory.Options()
@@ -157,6 +153,7 @@ class MainActivity : FlutterActivity() {
 
                 result.success(resltList)
             }
+
             if (call.method == "rotate") {
                 val imgPath: String = call.argument("imgPath")!!
                 val angle: Double = call.argument("angle")!!
@@ -206,10 +203,10 @@ class MainActivity : FlutterActivity() {
 
                 // Destination where rotated image is saved
                 // on local directory
-                Imgcodecs.imwrite(imgPath, dst)
+                val imagetype = Imgcodecs.imwrite(imgPath, dst)
 
                 // Print message for successful execution of program
-                println("Image Rotated Successfully")
+                println("Image Rotated Successfully $imagetype")
 
 //            val byteArray: ByteArray
 //                val byteArray: ByteArray = call.argument("bytes")!!
@@ -218,10 +215,7 @@ class MainActivity : FlutterActivity() {
 //                println(temp)
                 result.success(imgPath)
             }
-            if (call.method == "rotateCompleted") {
-                val byteArray: ByteArray = call.argument("bytes")!!
-                result.success(byteArray)
-            } else {
+           else {
                 result.notImplemented()
             }
         }
