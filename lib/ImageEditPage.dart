@@ -1,11 +1,8 @@
 import 'dart:io';
-
 import 'package:dscanner/ImageService.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'cropsScreen.dart';
 
 class ImageEditScreen extends StatefulWidget {
@@ -18,12 +15,8 @@ class ImageEditScreen extends StatefulWidget {
 class _ImageEditScreenState extends State<ImageEditScreen> {
   static const platform = MethodChannel('samples.flutter.dev/dscanner');
   String croppedImage = '';
-  var rotatedBytes;
   int buttonIndex = -1;
   List filteredImages = [];
-
-  double angle = 0;
-
   getFilteredImages(String originalImagPath) async {
     final result = await platform
         .invokeMethod("filtersImages", {"imgPath":originalImagPath });
@@ -89,7 +82,7 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                             )),
                         Text(
                           label,
-                          style: TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white),
                         )
                       ],
                     );
@@ -120,10 +113,13 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                     final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CropScreen(
+                          builder: (context) => const CropScreen(
 
                           ),
                         ));
+                    setState(() {
+
+                    });
                     // croppedImage = result[0];
                     // displayImg = croppedImage;
                     // final file = File(croppedImage);

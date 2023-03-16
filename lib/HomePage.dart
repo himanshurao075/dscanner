@@ -1,15 +1,11 @@
 import 'dart:io';
-
-import 'package:camera/camera.dart';
 import 'package:dscanner/ImageService.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'ImageEditPage.dart';
-import 'main.dart';
 
 class Homepage extends StatefulWidget {
-  Homepage({super.key});
+  const Homepage({super.key});
 
   @override
   State<Homepage> createState() => _HomepageState();
@@ -25,7 +21,7 @@ class _HomepageState extends State<Homepage> {
       context: context,
       builder: (context) {
         return SimpleDialog(
-          title: Text("How do you want choose an image"),
+          title: const Text("How do you want choose an image"),
           children: [
             ButtonBar(
               children: [
@@ -35,14 +31,14 @@ class _HomepageState extends State<Homepage> {
                       Navigator.pop(context);
                       setState(() {});
                     },
-                    child: Text("Camera")),
+                    child: const Text("Camera")),
                 TextButton(
                     onPressed: () async {
                       await pickImageFromGallery(index: index);
                       Navigator.pop(context);
                       setState(() {});
                     },
-                    child: Text("Gallery")),
+                    child: const Text("Gallery")),
               ],
             ),
           ],
@@ -230,7 +226,7 @@ class _HomepageState extends State<Homepage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ImageEditScreen(
+            builder: (context) => const ImageEditScreen(
 
                 )));
   }
