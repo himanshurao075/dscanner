@@ -190,8 +190,8 @@ class _CropScreenState extends State<CropScreen> {
           Navigator.pop(context);
 
         },icon : const Icon(Icons.check))],),
-        body: ImageService().loading ? Center(child: CircularProgressIndicator(color: Colors.blue,)):Center(
-          child: Container(
+        body: ImageService().loading ? const Center(child: CircularProgressIndicator(color: Colors.blue,)):Center(
+          child: SizedBox(
             height: screenSize.height*0.9,
             width: screenSize.width,
             child: FutureBuilder<ui.Image>(
