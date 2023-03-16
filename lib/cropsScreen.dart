@@ -130,6 +130,10 @@ class _CropScreenState extends State<CropScreen> {
     var decodedImage = await decodeImageFromList(file.readAsBytesSync());
 
     try {
+      ImageService().loading = true;
+      setState(() {
+
+      });
       final String result = await platform.invokeMethod('cropImage', {
         "imgPath":displayImagePath,
         "x1": ((touchPointer1.dx / size.width)) * decodedImage.width,
@@ -152,7 +156,10 @@ class _CropScreenState extends State<CropScreen> {
         "height": decodedImage.height,
         "width": decodedImage.width
       });
+      ImageService().loading = false;
+      setState(() {
 
+      });
       debugPrint("Method Channel Result : $result");
        ImageService().displayImageFile = XFile(result);
     } on PlatformException catch (e) {
@@ -176,14 +183,14 @@ class _CropScreenState extends State<CropScreen> {
         return true;
       },
       child: Scaffold(
-        backgroundColor: Colors.teal,
+        // backgroundColor: Colors.teal,
         appBar: AppBar(title: const Text("Test"), actions: [IconButton( onPressed :() async{
           await callMethodChannel();
           ImageService().originalImageFile =XFile( ImageService().displayImageFile?.path??'');
           Navigator.pop(context);
 
         },icon : const Icon(Icons.check))],),
-        body: Center(
+        body: ImageService().loading ? Center(child: CircularProgressIndicator(color: Colors.blue,)):Center(
           child: Container(
             height: screenSize.height*0.9,
             width: screenSize.width,

@@ -16,8 +16,25 @@ class ImageService  {
   XFile? _originalImageFile ;
   XFile? _displayImageFile ;
 
+  int _selectImageIndex =0;
+
+  int get selectImageIndex => _selectImageIndex;
+
+  set selectImageIndex(int value) {
+    _selectImageIndex = value;
+  }
+
+  bool _loading = false;
 
 
+
+
+  bool get loading => _loading;
+
+  set loading(bool value) {
+    _loading = value;
+
+  }
 
   XFile? get originalImageFile => _originalImageFile;
   set originalImageFile(XFile? value) {

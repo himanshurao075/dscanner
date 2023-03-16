@@ -48,6 +48,10 @@ class _HomepageState extends State<Homepage> {
   }
 
   pickImageFromCamera({int index = -1}) async {
+    ImageService().loading = true;
+    setState(() {
+
+    });
     if (index == -1) {
       final file = await picker.pickImage(source: ImageSource.camera);
       if (file != null) ImageService().pickedImages.add(file);
@@ -57,6 +61,10 @@ class _HomepageState extends State<Homepage> {
         ImageService().pickedImages[index] = file;
       }
     }
+    ImageService().loading =false;
+    setState(() {
+
+    });
   }
 
   pickImageFromGallery({int index = -1}) async {
@@ -85,7 +93,10 @@ class _HomepageState extends State<Homepage> {
               },
               child: const Icon(Icons.add),
             ),
-      body:ImageService(). pickedImages.isEmpty
+      body:
+      ImageService().loading ? const Center(child: CircularProgressIndicator(color: Colors.blue,)) :
+
+      ImageService(). pickedImages.isEmpty
           ? const Center(
               child: Text('Press + to add images'),
             )
@@ -222,12 +233,16 @@ class _HomepageState extends State<Homepage> {
   edit(int index) async {
     ImageService().displayImageFile = ImageService(). pickedImages[index];
     ImageService().originalImageFile = ImageService().pickedImages[index];
-
-    Navigator.push(
+    ImageService().selectImageIndex = index;
+   await   Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => const ImageEditScreen(
 
                 )));
+   ImageService().pickedImages[ImageService().selectImageIndex] = ImageService().originalImageFile!;
+   setState(() {
+
+   });
   }
 }
