@@ -62,6 +62,24 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
         ),
         title: const Text("Edit Image"),
         actions: [
+          if (buttonIndex == -1)
+            TextButton(
+                onPressed: () {
+                  ImageService().originalImageFile = ImageService()
+                      .pickedImages[ImageService().selectImageIndex];
+                  ImageService().displayImageFile =
+                      ImageService().originalImageFile;
+                  setState(() {});
+                },
+                child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(30)),
+                    padding: const EdgeInsets.all(8.0),
+                    child: const Text(
+                      "Discard Changes",
+                      style: TextStyle(color: Colors.white),
+                    ))),
           if (buttonIndex == 2) ...[
             IconButton(
                 onPressed: () async {
@@ -85,144 +103,152 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
                 icon: const Icon(Icons.check))
         ],
       ),
-      body: ImageService().loading ? const Center(child: CircularProgressIndicator(color: Colors.blue,)):Column(
-        children: [
-          Expanded(
-            child: Center(
-              child: Image.file(
-                File(displayImage),
-                // fit: BoxFit.contain,
-                // height: 1080,
-                // width: 720,
-              ),
-            ),
-          ),
-          if (croppedImage.isNotEmpty) const Spacer(),
-          if (buttonIndex == 0)
-            Container(
-              color: Colors.black,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(3, (index) {
-                    final label =
-                    ["Original", "Whiteboard", "Grayscale"][index];
-                    return Column(
-                      children: [
-                        filteredImages.isEmpty
-                            ? Container(
-                          height: 100,
-                          width: 80,
-                          color: Colors.white,
-                        )
-                            : InkWell(
-                            onTap: () {
-                              ImageService().displayImageFile =
-                                  XFile(filteredImages[index]);
-                              setState(() {});
-                            },
-                            child: Image.file(
-                              File(filteredImages[index]),
-                              height: 100,
-                              width: 80,
-                            )),
-                        Text(
-                          label,
-                          style: const TextStyle(color: Colors.white),
-                        )
-                      ],
-                    );
-                  }),
+      body: ImageService().loading
+          ? const Center(
+              child: CircularProgressIndicator(
+              color: Colors.blue,
+            ))
+          : Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Image.file(
+                      File(displayImage),
+                      // fit: BoxFit.contain,
+                      // height: 1080,
+                      // width: 720,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          if (buttonIndex == -1)
-            Container(
-              color: Colors.black,
-              child: ButtonBar(
-                alignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  InkWell(
-                    onTap: () async {
-                      buttonIndex = 0;
-                      await getFilteredImages(
-                          ImageService().originalImageFile?.path ?? '');
-                      setState(() {});
-                    },
-                    child: Icon(
-                      Icons.filter,
-                      color: buttonIndex == 0 ? Colors.teal : Colors.white,
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () async {
-                      buttonIndex = 1;
-                      setState(() {});
-                      final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CropScreen(),
-                          ));
-
-                      buttonIndex = -1;
-                      setState(() {});
-                      // croppedImage = result[0];
-                      // displayImg = croppedImage;
-                      // final file = File(croppedImage);
-                      // var decodedImage =
-                      // await decodeImageFromList(file.readAsBytesSync());
-                      // setState(() {});
-                      // debugPrint("Result DAta  $result");
-                      // callMethodChannel();
-                    },
-                    child: Icon(
-                      Icons.crop,
-                      color: buttonIndex == 1 ? Colors.teal : Colors.white,
-                    ),
-                  ),
-                  IconButton(
-                      icon: Icon(
-                        Icons.rotate_90_degrees_ccw,
-                        color: buttonIndex == 2 ? Colors.teal : Colors.white,
+                if (croppedImage.isNotEmpty) const Spacer(),
+                if (buttonIndex == 0)
+                  Container(
+                    color: Colors.black,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: List.generate(3, (index) {
+                          final label =
+                              ["Original", "Whiteboard", "Grayscale"][index];
+                          return Column(
+                            children: [
+                              filteredImages.isEmpty
+                                  ? Container(
+                                      height: 100,
+                                      width: 80,
+                                      color: Colors.white,
+                                    )
+                                  : InkWell(
+                                      onTap: () {
+                                        ImageService().displayImageFile =
+                                            XFile(filteredImages[index]);
+                                        setState(() {});
+                                      },
+                                      child: Image.file(
+                                        File(filteredImages[index]),
+                                        height: 100,
+                                        width: 80,
+                                      )),
+                              Text(
+                                label,
+                                style: const TextStyle(color: Colors.white),
+                              )
+                            ],
+                          );
+                        }),
                       ),
-                      onPressed: () async {
-                        // String img = widget.img.path;
-                        // print("Before rotation $img");
-                        buttonIndex = 2;
-                        setState(() {});
+                    ),
+                  ),
+                if (buttonIndex == -1)
+                  Container(
+                    color: Colors.black,
+                    child: ButtonBar(
+                      alignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        InkWell(
+                          onTap: () async {
+                            buttonIndex = 0;
+                            await getFilteredImages(
+                                ImageService().originalImageFile?.path ?? '');
+                            setState(() {});
+                          },
+                          child: Icon(
+                            Icons.filter,
+                            color:
+                                buttonIndex == 0 ? Colors.teal : Colors.white,
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            buttonIndex = 1;
+                            setState(() {});
+                            final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const CropScreen(),
+                                ));
 
-                        // rotatedBytes = rotateImage;
-                        // displayImg = rotatedBytes;
-                        // print(rotateImage);
-                        // print("After rotation ${rotatedBytes}");
-                        // if (angle > 270) {
-                        //   angle = 0;
-                        //   setState(() {});
-                        // } else {
-                        //   angle = angle + 90.0;
-                        //   setState(() {});
-                        // }
-                        // rotateImage = await platform.invokeMethod('rotate', {
-                        //   "imgPath": croppedImage.isNotEmpty
-                        //       ? croppedImage
-                        //       : widget.img.path,
-                        //   "angle": angle,
-                        // });
-                        // setState(() {});
-                        // rotatedBytes = rotateImage;
-                        // setState(() {});
-                        // if (kDebugMode) {
-                        //   print(rotateImage);
-                        // }
-                        // croppedImage = XFile.fromData(rotateImage).path;
-                      },
-                      color: Colors.white)
-                ],
-              ),
-            )
-        ],
-      ),
+                            buttonIndex = -1;
+                            setState(() {});
+                            // croppedImage = result[0];
+                            // displayImg = croppedImage;
+                            // final file = File(croppedImage);
+                            // var decodedImage =
+                            // await decodeImageFromList(file.readAsBytesSync());
+                            // setState(() {});
+                            // debugPrint("Result DAta  $result");
+                            // callMethodChannel();
+                          },
+                          child: Icon(
+                            Icons.crop,
+                            color:
+                                buttonIndex == 1 ? Colors.teal : Colors.white,
+                          ),
+                        ),
+                        IconButton(
+                            icon: Icon(
+                              Icons.rotate_90_degrees_ccw,
+                              color:
+                                  buttonIndex == 2 ? Colors.teal : Colors.white,
+                            ),
+                            onPressed: () async {
+                              // String img = widget.img.path;
+                              // print("Before rotation $img");
+                              buttonIndex = 2;
+                              setState(() {});
+
+                              // rotatedBytes = rotateImage;
+                              // displayImg = rotatedBytes;
+                              // print(rotateImage);
+                              // print("After rotation ${rotatedBytes}");
+                              // if (angle > 270) {
+                              //   angle = 0;
+                              //   setState(() {});
+                              // } else {
+                              //   angle = angle + 90.0;
+                              //   setState(() {});
+                              // }
+                              // rotateImage = await platform.invokeMethod('rotate', {
+                              //   "imgPath": croppedImage.isNotEmpty
+                              //       ? croppedImage
+                              //       : widget.img.path,
+                              //   "angle": angle,
+                              // });
+                              // setState(() {});
+                              // rotatedBytes = rotateImage;
+                              // setState(() {});
+                              // if (kDebugMode) {
+                              //   print(rotateImage);
+                              // }
+                              // croppedImage = XFile.fromData(rotateImage).path;
+                            },
+                            color: Colors.white)
+                      ],
+                    ),
+                  )
+              ],
+            ),
     );
   }
 

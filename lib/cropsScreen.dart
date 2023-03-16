@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 import 'package:dscanner/ImageService.dart';
 import 'package:dscanner/SizeUtils.dart';
 import 'package:flutter/material.dart';
@@ -15,15 +16,19 @@ class CropScreen extends StatefulWidget {
 }
 
 class _CropScreenState extends State<CropScreen> {
+
   Future<ui.Image> getImage() async {
     final imgCompletor = Completer<ui.Image>();
     Size size = MediaQuery.of(context).size;
-    final m = MemoryImage(await (ImageService().displayImageFile!).readAsBytes());
-    final resizedImage =
-    ResizeImage(m, width: size.width.toInt(), height:(size.height*0.9).toInt());
-    resizedImage
-    // m
-        .resolve(const ImageConfiguration(size: Size(100, 100)))
+    final bytes = await (ImageService().displayImageFile!).readAsBytes();
+    final m = MemoryImage(bytes);
+    var decodedImage = await decodeImageFromList(bytes);
+
+    // final resizedImage =
+    // ResizeImage(m, width: size.width.toInt(), height:(size.height*0.9).toInt());
+    // resizedImage
+    m.
+    resolve(const ImageConfiguration(size: Size(100, 100)))
         .addListener(ImageStreamListener((image, synchronousCall) {
       imgCompletor.complete(image.image);
     }));
@@ -120,14 +125,45 @@ class _CropScreenState extends State<CropScreen> {
     }
     return result;
   }
+  double widPer=1, hitPer =1;
+  bool isPotrait =true;
+
+  getCanvasSizeDetails()async{
+    final bytes = await (ImageService().displayImageFile!).readAsBytes();
+    var decodedImage = await decodeImageFromList(bytes);
+    imageAspectRatio = decodedImage.width/decodedImage.height;
+
+    if(decodedImage.width > decodedImage.height) {
+     widPer = 1;
+     hitPer = (decodedImage.height / decodedImage.width);
+   isPotrait = false;
+    }
+    else {
+      hitPer = 1;
+      widPer = (decodedImage.width / decodedImage.height);
+   isPotrait = true;
+    }
+setState(() {
+
+});
+  }
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    getCanvasSizeDetails();
+  }
 
   static const platform = MethodChannel('samples.flutter.dev/dscanner');
   String croppedImageString = '';
+  double  imageAspectRatio = 1 ;
   callMethodChannel() async {
     String displayImagePath = ImageService().displayImageFile?.path??'';
     final size = MediaQuery.of(context).size;
     final file = File(displayImagePath);
     var decodedImage = await decodeImageFromList(file.readAsBytesSync());
+
 
     try {
       ImageService().loading = true;
@@ -153,8 +189,10 @@ class _CropScreenState extends State<CropScreen> {
         // "y2": touchPointer2.dy,
         // "y3": touchPointer3.dy,
         // "y4": touchPointer4.dy,
-        "height": decodedImage.height,
-        "width": decodedImage.width
+       "height" : 540,
+        "width" : 540
+        // "height":(((touchPointer2.dx / size.width)) * decodedImage.width - ((touchPointer1.dx / size.width)) * decodedImage.width),
+        // "width": ((touchPointer3.dy / size.height) * decodedImage.height - ((touchPointer1.dy / size.height)) * decodedImage.height)
       });
       ImageService().loading = false;
       setState(() {
@@ -171,11 +209,19 @@ class _CropScreenState extends State<CropScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final screenSize = MediaQuery.of(context).size;
-    touchPointer1 = const Offset(50, 50);
-    touchPointer2 = Offset(size.width-50, 50);
-    touchPointer3 = Offset(50, size.height*0.9 -50);
-    touchPointer4 = Offset(size.width-50, size.height*0.9 - 50);
+    final screenSize = MediaQueryData.fromWindow(window).size;
+    final canvasHeight =  isPotrait ? size.height*0.9 *hitPer: size.width*hitPer ;
+    final canvasWidth = isPotrait ?  size.height*0.9*widPer   :  size.width*widPer;
+    print("Center  - ${screenSize.height/2 } ${screenSize.width /2}");
+
+
+    touchPointer1 =  Offset(20, 20);
+    touchPointer2 = Offset(canvasWidth -20, 20);
+    touchPointer3 = Offset(20, canvasHeight -20);
+    touchPointer4 = Offset(canvasWidth-20, canvasHeight -20);
+    debugPrint(hitPer.toString());
+    debugPrint(widPer.toString());
+
     return WillPopScope(
       onWillPop: () async {
        ImageService().displayImageFile = ImageService().originalImageFile;
@@ -184,83 +230,93 @@ class _CropScreenState extends State<CropScreen> {
       },
       child: Scaffold(
         // backgroundColor: Colors.teal,
-        appBar: AppBar(title: const Text("Test"), actions: [IconButton( onPressed :() async{
+        appBar: AppBar(title: const Text("Image Cropping"), actions: [IconButton( onPressed :() async{
           await callMethodChannel();
           ImageService().originalImageFile =XFile( ImageService().displayImageFile?.path??'');
           Navigator.pop(context);
 
         },icon : const Icon(Icons.check))],),
         body: ImageService().loading ? Center(child: CircularProgressIndicator(color: Colors.blue,)):Center(
-          child: Container(
-            height: screenSize.height*0.9,
-            width: screenSize.width,
-            child: FutureBuilder<ui.Image>(
-                future: getImage(),
-                builder: (context, snap) {
-                  if (snap.data == null) {
-                    return const LinearProgressIndicator();
-                  } else {
-                    return GestureDetector(
-                      onPanStart: (detalis) {
-                        // debugPrint(detalis.localPosition.toString());
-                      },
-                      onPanEnd: (details){
+          child: AspectRatio(
+            aspectRatio: canvasWidth/canvasHeight,
+            child: Container(
+              color: Colors.orange,
+              height: canvasHeight,
+              width: canvasWidth,
 
-                      },
-                      onPanUpdate: (dragDetails) {
-                        debugPrint("Local  :   ${dragDetails.localPosition}");
-                        debugPrint("Global  :   ${dragDetails.globalPosition}");
-
-                        // if ()
-                        final temp = checkPointer(dragDetails.localPosition);
-                        // if (paintKey.currentContext != null) {
-                        //   final box = paintKey.currentContext!.findRenderObject()
-                        //       as RenderBox;
-                        //   if (Rect.fromCenter(
-                        //           center: box.size.center(Offset.zero),
-                        //           width: box.size.width * .4,
-                        //           height: box.size.width * .4)
-                        //       .contains(dragDetails.globalPosition)) {
-                        //     return;
-                        //   }
-                        // }
-
-
-                        if (checkOverlapping(temp, dragDetails.localPosition,
-                            paintKey.currentContext!.size!.center(Offset.zero))) {
-                          if (temp == 1) {
-                            touchPointer1 = dragDetails.localPosition;
-                          } else if (temp == 2) {
-                            touchPointer2 = dragDetails.localPosition;
-                          } else if (temp == 3) {
-                            touchPointer3 = dragDetails.localPosition;
-                          } else if (temp == 4) {
-                            touchPointer4 = dragDetails.localPosition;
-                          }
-                        }
-
-                        state!(() {});
-                      },
-                      child: StatefulBuilder(
-                        builder: (context, setState2) {
-                          state = setState2;
-                          return CustomPaint(
-                              key: paintKey,
-                              willChange: true,
-                              // size:SizeUtil.size,
-                              // Size(screenSize.width*0.9, screenSize.height*0.8),
-                              painter: CustomCropPainter(
-                                img: snap.data!,
-                                touchPointer1: touchPointer1,
-                                touchPointer2: touchPointer2,
-                                touchPointer3: touchPointer3,
-                                touchPointer4: touchPointer4,
-                              ));
+              child: FutureBuilder<ui.Image>(
+                  future: getImage(),
+                  builder: (context, snap) {
+                    if (snap.data == null) {
+                      return const LinearProgressIndicator();
+                    } else {
+                      return GestureDetector(
+                        onPanStart: (detalis) {
+                          // debugPrint(detalis.localPosition.toString());
                         },
-                      ),
-                    );
-                  }
-                }),
+                        onPanEnd: (details){
+
+                        },
+                        onPanUpdate: (dragDetails) {
+                          debugPrint("Local  :   ${dragDetails.localPosition}");
+                          debugPrint("Global  :   ${dragDetails.globalPosition}");
+
+                          // if ()
+                          final temp = checkPointer(dragDetails.localPosition);
+                          // if (paintKey.currentContext != null) {
+                          //   final box = paintKey.currentContext!.findRenderObject()
+                          //       as RenderBox;
+                          //   if (Rect.fromCenter(
+                          //           center: box.size.center(Offset.zero),
+                          //           width: box.size.width * .4,
+                          //           height: box.size.width * .4)
+                          //       .contains(dragDetails.globalPosition)) {
+                          //     return;
+                          //   }
+                          // }
+
+
+                          if (checkOverlapping(temp, dragDetails.localPosition,
+                              paintKey.currentContext!.size!.center(Offset.zero))) {
+
+                            if(dragDetails.localPosition.dx <0 || dragDetails.localPosition.dy<0 ||dragDetails.localPosition.dx >canvasWidth || dragDetails.localPosition.dy>canvasHeight ){
+                              return;
+                            }
+
+                            if (temp == 1) {
+                              touchPointer1 = dragDetails.localPosition;
+                            } else if (temp == 2) {
+                              touchPointer2 = dragDetails.localPosition;
+                            } else if (temp == 3) {
+                              touchPointer3 = dragDetails.localPosition;
+                            } else if (temp == 4) {
+                              touchPointer4 = dragDetails.localPosition;
+                            }
+                          }
+
+                          state!(() {});
+                        },
+                        child: StatefulBuilder(
+                          builder: (context, setState2) {
+                            state = setState2;
+                            return CustomPaint(
+                               key: paintKey,
+                               willChange: true,
+
+                               // Size(screenSize.width*0.9, screenSize.height*0.8),
+                               painter: CustomCropPainter(
+                                 img: snap.data!,
+                                 touchPointer1: touchPointer1,
+                                 touchPointer2: touchPointer2,
+                                 touchPointer3: touchPointer3,
+                                 touchPointer4: touchPointer4,
+                               ));
+                          },
+                        ),
+                      );
+                    }
+                  }),
+            ),
           ),
         ),
       ),
@@ -288,10 +344,14 @@ class CustomCropPainter extends CustomPainter {
 
       SizeUtil.size = size;
     }
+
     var paint = Paint()
       ..style = PaintingStyle.fill
-      ..color = Colors.white
+      ..color = Colors.blue
       ..isAntiAlias = true;
+
+    canvas.drawRect(Rect.fromLTRB(0, 0, size.width, size.height), paint);
+
     paintImage(
         canvas: canvas,
         rect: Rect.fromCenter(
