@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dscanner/ImageService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io' as Io;
@@ -11,8 +12,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 class CropScreen extends StatefulWidget {
-  const CropScreen({super.key, required this.img});
-  final XFile img;
+  const CropScreen({super.key,});
+
   @override
   State<CropScreen> createState() => _CropScreenState();
 }
@@ -21,11 +22,9 @@ class _CropScreenState extends State<CropScreen> {
   Future<ui.Image> getImage() async {
     final imgCompletor = Completer<ui.Image>();
     Size size = MediaQuery.of(context).size;
-
-    final m = MemoryImage(await widget.img.readAsBytes());
+    final m = MemoryImage(await (ImageService().displayImageFile!).readAsBytes());
     final resizedImage =
-    ResizeImage(m, width: size.width.toInt(), height: size.height.toInt());
-
+    ResizeImage(m, width: (size.width*0.9).toInt(), height: (size.height*0.8).toInt());
     resizedImage
     // m
         .resolve(const ImageConfiguration(size: Size(100, 100)))
@@ -129,30 +128,14 @@ class _CropScreenState extends State<CropScreen> {
   static const platform = MethodChannel('samples.flutter.dev/dscanner');
   String croppedImageString = '';
   callMethodChannel() async {
+    String displayImagePath = ImageService().displayImageFile?.path??'';
     final size = MediaQuery.of(context).size;
-    // final image = await getImage();
-    //  final byte = await image.toByteData();
-    //
-    //  // final fileImg=  FileImage(File(widget.img.path));
-    //  // Uint8List m =  File(widget.img.path).readAsBytesSync();
-    //  // // ui.Image x = await decodeImageFromList(m);
-    //  // // ByteData? bytes = await x.toByteData();
-    //  // Image.Image decodedImage = Image.decodeImage(m) as Image.Image;
-    //  // Image.Image thumbnail = Image.copyResize(decodedImage, width: 60);
-    //  // List<int> resizedIntList = thumbnail.getBytes();
-    // Directory docDir = await getApplicationDocumentsDirectory();
-    // String cahcePath = docDir.path;
-    //  final fout =await File(cahcePath).writeAsBytes(byte!.buffer.asUint8List());
-    //  String imgPath = fout.path ;
-
-    // double x1 =  (touchPointer1.dx/  size.width) *100 * decodedImage.width;
-
-    final file = File(widget.img.path);
+    final file = File(displayImagePath);
     var decodedImage = await decodeImageFromList(file.readAsBytesSync());
 
     try {
       final String result = await platform.invokeMethod('cropImage', {
-        "imgPath":widget.img.path ,
+        "imgPath":displayImagePath,
         "x1": ((touchPointer1.dx / size.width)) * decodedImage.width,
         "x2": ((touchPointer2.dx / size.width)) * decodedImage.width,
         "x3": ((touchPointer3.dx / size.width)) * decodedImage.width,
@@ -173,9 +156,9 @@ class _CropScreenState extends State<CropScreen> {
         "height": decodedImage.height,
         "width": decodedImage.width
       });
-      // batteryLevel = 'Battery level at $result % .';
+
       debugPrint("Method Channel Result : $result");
-      croppedImageString = result;
+       ImageService().displayImageFile = XFile(result);
     } on PlatformException catch (e) {
       debugPrint("Failed to get battery level: '${e.message}'.");
     }
@@ -185,6 +168,7 @@ class _CropScreenState extends State<CropScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size.center(Offset.zero);
+    final screenSize = MediaQuery.of(context).size;
     touchPointer3 = Offset(50, size.dy + 100);
     touchPointer4 = Offset(300, size.dy + 100);
     return WillPopScope(
@@ -197,73 +181,79 @@ class _CropScreenState extends State<CropScreen> {
 
         return false;
       },
-      child: Container(
-        height: 1080,
-        width: 720,
-        child: FutureBuilder<ui.Image>(
-            future: getImage(),
-            builder: (context, snap) {
-              if (snap.data == null) {
-                return LinearProgressIndicator();
-              } else {
-                return GestureDetector(
-                  onPanStart: (detalis) {
-                    // debugPrint(detalis.localPosition.toString());
-                  },
-                  onPanUpdate: (dragDetails) {
-                    // debugPrint("Local  :   " + dragDetails.localPosition.toString());
-                    // debugPrint("Global  :   " + dragDetails.globalPosition.toString());
-
-                    // if ()
-                    final temp = checkPointer(dragDetails.localPosition);
-
-                    // if (paintKey.currentContext != null) {
-                    //   final box = paintKey.currentContext!.findRenderObject()
-                    //       as RenderBox;
-                    //   if (Rect.fromCenter(
-                    //           center: box.size.center(Offset.zero),
-                    //           width: box.size.width * .4,
-                    //           height: box.size.width * .4)
-                    //       .contains(dragDetails.globalPosition)) {
-                    //     return;
-                    //   }
-                    // }
-
-                    // // checkOverlapping(temp);
-                    if (checkOverlapping(temp, dragDetails.localPosition,
-                        paintKey.currentContext!.size!.center(Offset.zero))) {
-                      if (temp == 1) {
-                        touchPointer1 = dragDetails.globalPosition;
-                      } else if (temp == 2) {
-                        touchPointer2 = dragDetails.globalPosition;
-                      } else if (temp == 3) {
-                        touchPointer3 = dragDetails.globalPosition;
-                      } else if (temp == 4) {
-                        touchPointer4 = dragDetails.globalPosition;
-                      }
-                    }
-
-                    state!(() {});
-                  },
-                  child: StatefulBuilder(
-                    builder: (context, setState2) {
-                      state = setState2;
-                      return CustomPaint(
-                          key: paintKey,
-                          willChange: true,
-                          size: const Size(720, 1080),
-                          painter: CustomCropPainter(
-                            img: snap.data!,
-                            touchPointer1: touchPointer1,
-                            touchPointer2: touchPointer2,
-                            touchPointer3: touchPointer3,
-                            touchPointer4: touchPointer4,
-                          ));
+      child: Scaffold(
+        backgroundColor: Colors.teal,
+        // appBar: AppBar(title: Text("Test"), actions: [IconButton( onPressed :() {
+        //   ImageService().originalImageFile = ImageService().displayImageFile;
+        //   Navigator.pop(context);
+        // },icon : Icon(Icons.check))],),
+        body: Container(
+          // height: 1080,
+          // width: 720,
+          child: FutureBuilder<ui.Image>(
+              future: getImage(),
+              builder: (context, snap) {
+                if (snap.data == null) {
+                  return LinearProgressIndicator();
+                } else {
+                  return GestureDetector(
+                    onPanStart: (detalis) {
+                      // debugPrint(detalis.localPosition.toString());
                     },
-                  ),
-                );
-              }
-            }),
+                    onPanUpdate: (dragDetails) {
+                      // debugPrint("Local  :   " + dragDetails.localPosition.toString());
+                      // debugPrint("Global  :   " + dragDetails.globalPosition.toString());
+
+                      // if ()
+                      final temp = checkPointer(dragDetails.localPosition);
+                      // if (paintKey.currentContext != null) {
+                      //   final box = paintKey.currentContext!.findRenderObject()
+                      //       as RenderBox;
+                      //   if (Rect.fromCenter(
+                      //           center: box.size.center(Offset.zero),
+                      //           width: box.size.width * .4,
+                      //           height: box.size.width * .4)
+                      //       .contains(dragDetails.globalPosition)) {
+                      //     return;
+                      //   }
+                      // }
+
+
+                      if (checkOverlapping(temp, dragDetails.localPosition,
+                          paintKey.currentContext!.size!.center(Offset.zero))) {
+                        if (temp == 1) {
+                          touchPointer1 = dragDetails.globalPosition;
+                        } else if (temp == 2) {
+                          touchPointer2 = dragDetails.globalPosition;
+                        } else if (temp == 3) {
+                          touchPointer3 = dragDetails.globalPosition;
+                        } else if (temp == 4) {
+                          touchPointer4 = dragDetails.globalPosition;
+                        }
+                      }
+
+                      state!(() {});
+                    },
+                    child: StatefulBuilder(
+                      builder: (context, setState2) {
+                        state = setState2;
+                        return CustomPaint(
+                            key: paintKey,
+                            willChange: true,
+                            size:  Size(screenSize.width*0.9, screenSize.height*0.8),
+                            painter: CustomCropPainter(
+                              img: snap.data!,
+                              touchPointer1: touchPointer1,
+                              touchPointer2: touchPointer2,
+                              touchPointer3: touchPointer3,
+                              touchPointer4: touchPointer4,
+                            ));
+                      },
+                    ),
+                  );
+                }
+              }),
+        ),
       ),
     );
   }
@@ -293,7 +283,7 @@ class CustomCropPainter extends CustomPainter {
         rect: Rect.fromCenter(
             center: size.center(Offset.zero), width: 720, height: 1080),
         image: img);
-
+  paint.color = Colors.blueAccent;
     canvas.drawCircle(touchPointer1, 15, paint);
     canvas.drawCircle(touchPointer2, 15, paint);
     canvas.drawCircle(touchPointer3, 15, paint);

@@ -69,12 +69,10 @@ class MainActivity : FlutterActivity() {
             }
             if (call.method == "filtersImages") {
                 val imgPath: String = call.argument("imgPath")!!
-                val image = File(imgPath)
+                val imageFile = File(imgPath)
                 val bmOptions: BitmapFactory.Options = BitmapFactory.Options()
-                var bitmap: Bitmap = BitmapFactory.decodeFile(image.path, bmOptions)
-
-                println("flow 1")
-                var whiteboardBitmap: Bitmap = BitmapFactory.decodeFile(image.path, bmOptions)
+                var bitmap: Bitmap = BitmapFactory.decodeFile(imageFile.path, bmOptions)
+                var whiteboardBitmap: Bitmap = BitmapFactory.decodeFile(imageFile.path, bmOptions)
                 val currentImage = Mat()
                 val currentImage2 = Mat()
                 val options: BitmapFactory.Options = BitmapFactory.Options()
@@ -82,21 +80,17 @@ class MainActivity : FlutterActivity() {
                 BitmapFactory.decodeFile(File(imgPath).getAbsolutePath(), options)
                 val imageHeight: Int = options.outHeight
                 val imageWidth: Int = options.outWidth
-//                val currentImage2 =  Mat(imageHeight, imageWidth, CvType.CV_8U/*.CV_8UC1*/);
                 var whiteboardMat: Mat = Mat()
-
                 var adaptiveMat = Mat()
                 val blurMat = Mat()
-                println("flow 2")
                 var grayImgUri: String = ""
                 var whiteboardImgUri: String = ""
-
-                println("flow 3")
-
                 try {
-
+                    /// Convert image bitmap to mat
                     Utils.bitmapToMat(bitmap, currentImage)
                     Utils.bitmapToMat(bitmap, currentImage2)
+
+                    /// Converting image mat  to grayscale  mat
                     var grayscaleMat: Mat = Mat()
                     var grayBitmap: Bitmap = Bitmap.createBitmap(
                         currentImage2.cols(),
@@ -104,19 +98,13 @@ class MainActivity : FlutterActivity() {
                         Bitmap.Config.ARGB_8888
                     )
                     Imgproc.cvtColor(currentImage, currentImage, Imgproc.COLOR_BGR2GRAY);
-                    println("flow 4")
-
                     Imgproc.cvtColor(currentImage2, grayscaleMat, Imgproc.COLOR_BGR2GRAY);
-                    println("flow 4")
-
+                    ///Converting Grayscale mat to grayscale Bitmap image
                     Utils.matToBitmap(grayscaleMat, grayBitmap);
-                    println("flow 4-2")
-//
+                    /// Get Grayscale image Uri
                     grayImgUri = saveImage(grayBitmap)
-
-                    println("flow 5")
-
-//                    Imgproc.threshold(grayscaleMat, adaptiveMat, 200.0, 255.0, Imgproc.THRESH_BINARY)
+//                  Imgproc.threshold(grayscaleMat, adaptiveMat, 200.0, 255.0, Imgproc.THRESH_BINARY)
+                    ///// Converting image mat to adaptive image mat for whiteboard image
                     Imgproc.adaptiveThreshold(
                         currentImage, adaptiveMat,
                         255.0,
@@ -125,131 +113,101 @@ class MainActivity : FlutterActivity() {
                         401,
                         14.0,
                     )
-                    println("flow 5-1")
-
+                    //// Converting apative mat to blur mat   For image smoothness
                     Imgproc.GaussianBlur(adaptiveMat, blurMat, Size(5.0, 5.0), 0.0)
-                    println("flow 5-2")
-
                     Core.addWeighted(blurMat, 0.5, currentImage, 0.5, 1.0, whiteboardMat)
-                    println("flow 5-3")
 
+                    /// Converting whiteboard mat to bitmap
                     Utils.matToBitmap(whiteboardMat, whiteboardBitmap)
-                    println("flow 5-4")
 
+                    /// Get whiteboard image uri
                     whiteboardImgUri = saveImage(whiteboardBitmap)
-                    println("flow 6")
-
                 } catch (e: Exception) {
-                    println(e)
-                    result.success("FilteredImgException $e")
+                    println("Native ======>  ImageFilter : Excpetion = $e")
+                    result.success("Some Excpetion $e")
                 }
-
                 val resltList = listOf(imgPath, whiteboardImgUri, grayImgUri)
-
-
                 result.success(resltList)
             }
 
             if (call.method == "rotate") {
+                var outputImgUri : String = ""
                 val imgPath: String = call.argument("imgPath")!!
                 val angle: Double = call.argument("angle")!!
-                println(imgPath)
-                println(angle)
                 val src: Mat = Imgcodecs.imread(imgPath)
-
                 // Create empty Mat object to store output image
                 val dst: Mat = Mat()
+                try{// Define Rotation Angle
+                    // Image rotation according to the angle provided
+                    if (angle == 90.0 || angle == -270.0)
+                        Core.rotate(src, dst, Core.ROTATE_90_CLOCKWISE);
+                    else if (angle == 180.0 || angle == -180.0)
+                        Core.rotate(src, dst, Core.ROTATE_180);
+                    else if (angle == 270.0 || angle == -90.0)
+                        Core.rotate(
+                            src, dst,
+                            Core.ROTATE_90_COUNTERCLOCKWISE
+                        );
+                    else {
+                        // Center of the rotation is given by
+                        // midpoint of source image :
+                        // (width/2.0,height/2.0)
+                        val rotPoint: Point = Point(
+                            src.cols() / 2.0,
+                            src.rows() / 2.0
+                        );
+                        // Create Rotation Matrix
+                        val rotMat: Mat = Imgproc.getRotationMatrix2D(
+                            rotPoint, angle, 1.0
+                        );
+                        // Apply Affine Transformation
+                        Imgproc.warpAffine(
+                            src, dst, rotMat, src.size(),
+                            Imgproc.WARP_INVERSE_MAP
+                        );
+                        // If counterclockwise rotation is required use
+                        // following: Imgproc.warpAffine(src, dst,
+                        // rotMat, src.size());
+                    }
+                    //// convert dst Mat to bitmap
+
+                    var rotatedImgBitmap: Bitmap = Bitmap.createBitmap(
+                        dst.cols(),
+                        dst.rows(),
+                        Bitmap.Config.ARGB_8888
+                    )
+                    Utils.matToBitmap(dst,rotatedImgBitmap);
 
 
-                // Define Rotation Angle
+                    /// Get Image Uri from rotatedBitmap
 
-                // Image rotation according to the angle provided
-                if (angle == 90.0 || angle == -270.0)
 
-                    Core.rotate(src, dst, Core.ROTATE_90_CLOCKWISE);
-                else if (angle == 180.0 || angle == -180.0)
+                    outputImgUri = saveImage(rotatedImgBitmap);
 
-                    Core.rotate(src, dst, Core.ROTATE_180);
-                else if (angle == 270.0 || angle == -90.0)
 
-                    Core.rotate(
-                        src, dst,
-                        Core.ROTATE_90_COUNTERCLOCKWISE
-                    );
-                else {
 
-                    // Center of the rotation is given by
-                    // midpoint of source image :
-                    // (width/2.0,height/2.0)
-                    val rotPoint: Point = Point(
-                        src.cols() / 2.0,
-                        src.rows() / 2.0
-                    );
+//
+//                    // Save rotated image
+//                    // Destination where rotated image is saved
+//                    // on local directory
+//
+//                    val imagetype = Imgcodecs.imwrite(imgPath, dst)
+//
+                    // Print message for successful execution of program
+                    println("Image Rotated Successfully $outputImgUri")
 
-                    // Create Rotation Matrix
-                    val rotMat: Mat = Imgproc.getRotationMatrix2D(
-                        rotPoint, angle, 1.0
-                    );
-
-                    // Apply Affine Transformation
-                    Imgproc.warpAffine(
-                        src, dst, rotMat, src.size(),
-                        Imgproc.WARP_INVERSE_MAP
-                    );
-
-                    // If counterclockwise rotation is required use
-                    // following: Imgproc.warpAffine(src, dst,
-                    // rotMat, src.size());
                 }
-
-                // Save rotated image
-
-                // Destination where rotated image is saved
-                // on local directory
-                val imagetype = Imgcodecs.imwrite(imgPath, dst)
-
-                // Print message for successful execution of program
-                println("Image Rotated Successfully $imagetype")
-
-//            val byteArray: ByteArray
-//                val byteArray: ByteArray = call.argument("bytes")!!
-//                val rotateThread = RotateThread(byteArray)
-//              val temp =  rotateThread.start()
-//                println(temp)
-                result.success(imgPath)
+                catch (e: Exception) {
+                    println("Native ======>  ImageRotate : Excpetion = $e")
+                    result.success("Some Excpetion $e")
+                }
+                result.success(outputImgUri)
             } else {
                 result.notImplemented()
             }
         }
     }
 
-    internal class RotateThread(bytes: ByteArray) : Thread() {
-        var byteArray: ByteArray
-
-        init {
-            byteArray = bytes
-        }
-
-
-        override fun run(): Unit {
-            System.out.println("started")
-            val matrix = Matrix()
-            matrix.postRotate(90.toFloat())
-            val bitmap: Bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-            val rotatedBitmap: Bitmap = Bitmap.createBitmap(
-                bitmap,
-                0,
-                0,
-                bitmap.getWidth(),
-                bitmap.getHeight(),
-                matrix,
-                true
-            )
-            val stream = ByteArrayOutputStream()
-            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-            byteArray = stream.toByteArray()
-        }
-    }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private fun cropImage(
@@ -267,7 +225,6 @@ class MainActivity : FlutterActivity() {
     ): String {
         var imageUri: String? = ""
         val imageFile = File(originalImgPath)
-
         try {
             val bmOptions: BitmapFactory.Options = BitmapFactory.Options()
             var bitmap: Bitmap = BitmapFactory.decodeFile(imageFile.path, bmOptions)
@@ -280,6 +237,7 @@ class MainActivity : FlutterActivity() {
                 point1, point2, point3, point4
             )
             val currentImage = Mat()
+            /// Convert Input Image Bitmap to Mat
             Utils.bitmapToMat(bitmap, currentImage)
             val dst = MatOfPoint2f(
                 Point(0.0, 0.0),
@@ -287,21 +245,17 @@ class MainActivity : FlutterActivity() {
                 Point(0.0, imgHeight),
                 Point(imgWidth, imgHeight)
             )
+            /// Get Wrap Materix
             val warpMat = Imgproc.getPerspectiveTransform(src, dst)
             val destImage = Mat()
+            //// Get Prespective Cropped Image (Saved in destImage Mat )
             Imgproc.warpPerspective(currentImage, destImage, warpMat, Size(imgWidth, imgHeight))
             val tempbmp =
                 Bitmap.createBitmap(destImage.cols(), destImage.rows(), Bitmap.Config.ARGB_8888)
-            Utils.matToBitmap(destImage, tempbmp);
-            val currentBitmap = Bitmap.createBitmap(
-                currentImage.cols(),
-                currentImage.rows(),
-                Bitmap.Config.ARGB_8888
-            )
-            Utils.matToBitmap(currentImage, currentBitmap)
+            ///// Converting Output Mat to Bitmap
             Utils.matToBitmap(destImage, tempbmp)
+//            Utils.matToBitmap(currentImage, currentBitmap)
             imageUri = saveImage(tempbmp)
-
         } catch (e: Exception) {
             return "EXP : $e"
         }
@@ -310,48 +264,27 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun saveImage(image: Bitmap): String {
-        //TODO - Should be processed in another thread
-
-        val imagesFolder = File(context.getCacheDir(), "images")
-
+        val imagesFolder = File(context.getCacheDir(), "tempImage")
         var filePath: String? = null
-        println("func flow 1")
         try {
             imagesFolder.mkdirs()
             val file = File(imagesFolder, System.currentTimeMillis().toString() + ".png")
-            println("func flow 2")
-
             val stream = FileOutputStream(file)
-            println("func flow 3")
-
             image.compress(Bitmap.CompressFormat.PNG, 90, stream)
-            println("func flow 4")
-
             stream.flush()
             stream.close()
-            println("func flow 5")
-
             filePath = file.absolutePath
-            println("func flow 6")
-
-            //            uri = FileProvider.getUriForFile(this, "com.testntrack.opencvscanner.fileprovider", file);
         } catch (e: IOException) {
-            println("func flow 7")
-
-            Log.d("dfsd", "IOException while trying to write file for sharing: " + e.message)
-            println("func flow 8")
-
+            println("Native ======> Exception : Exception occur while saving temp chache image")
         }
-        println("func flow 9")
         var result: String = ""
         result = filePath ?: ""
-        println("func flow 10")
         return result
     }
 
+
     private val mLoaderCallback: BaseLoaderCallback = object : BaseLoaderCallback(this) {
     }
-
 
     override fun onResume() {
         super.onResume()
