@@ -234,7 +234,7 @@ class ImageEditScreen extends StatefulWidget {
 }
 
 class _ImageEditScreenState extends State<ImageEditScreen> {
-  static const platform = MethodChannel('samples.flutter.dev/cropImage');
+  static const platform = MethodChannel('samples.flutter.dev/dscanner');
   String croppedImage = '';
   var rotatedBytes;
   int buttonIndex = -1;

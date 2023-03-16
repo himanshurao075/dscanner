@@ -126,7 +126,7 @@ class _CropScreenState extends State<CropScreen> {
     return result;
   }
 
-  static const platform = MethodChannel('samples.flutter.dev/cropImage');
+  static const platform = MethodChannel('samples.flutter.dev/dscanner');
   String croppedImageString = '';
   callMethodChannel() async {
     final size = MediaQuery.of(context).size;
