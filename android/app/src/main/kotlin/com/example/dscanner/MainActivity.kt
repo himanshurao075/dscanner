@@ -31,9 +31,7 @@ import java.io.*
 
 
 class MainActivity : FlutterActivity() {
-
-
-    private val CHANNEL = "samples.flutter.dev/cropImage"
+    private val CHANNEL = "samples.flutter.dev/dscanner"
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(
@@ -52,8 +50,6 @@ class MainActivity : FlutterActivity() {
                 val imgWidth: Int = call.argument("width")!!
                 val imgHeight: Int = call.argument("height")!!
                 val imgPath: String = call.argument("imgPath")!!
-
-
                 val croppedImage = cropImage(
                     x1,
                     x2,
@@ -71,14 +67,14 @@ class MainActivity : FlutterActivity() {
 
 
             }
-  if(call.method=="filtersImages")
-            {val imgPath: String = call.argument("imgPath")!!
+            if (call.method == "filtersImages") {
+                val imgPath: String = call.argument("imgPath")!!
                 val image = File(imgPath)
                 val bmOptions: BitmapFactory.Options = BitmapFactory.Options()
                 var bitmap: Bitmap = BitmapFactory.decodeFile(image.path, bmOptions)
 
                 println("flow 1")
-                var whiteboardBitmap :Bitmap=   BitmapFactory.decodeFile(image.path, bmOptions)
+                var whiteboardBitmap: Bitmap = BitmapFactory.decodeFile(image.path, bmOptions)
                 val currentImage = Mat()
                 val currentImage2 = Mat()
                 val options: BitmapFactory.Options = BitmapFactory.Options()
@@ -92,28 +88,28 @@ class MainActivity : FlutterActivity() {
                 var adaptiveMat = Mat()
                 val blurMat = Mat()
                 println("flow 2")
-                var grayImgUri : String = ""
-                var whiteboardImgUri : String = ""
+                var grayImgUri: String = ""
+                var whiteboardImgUri: String = ""
 
                 println("flow 3")
 
-                try{
+                try {
 
                     Utils.bitmapToMat(bitmap, currentImage)
                     Utils.bitmapToMat(bitmap, currentImage2)
-                    var grayscaleMat:Mat = Mat()
-                    var grayBitmap : Bitmap=  Bitmap.createBitmap(
+                    var grayscaleMat: Mat = Mat()
+                    var grayBitmap: Bitmap = Bitmap.createBitmap(
                         currentImage2.cols(),
                         currentImage2.rows(),
                         Bitmap.Config.ARGB_8888
                     )
-                Imgproc.cvtColor(currentImage,currentImage,Imgproc.COLOR_BGR2GRAY);
+                    Imgproc.cvtColor(currentImage, currentImage, Imgproc.COLOR_BGR2GRAY);
                     println("flow 4")
 
-                    Imgproc.cvtColor(currentImage2,grayscaleMat,Imgproc.COLOR_BGR2GRAY);
+                    Imgproc.cvtColor(currentImage2, grayscaleMat, Imgproc.COLOR_BGR2GRAY);
                     println("flow 4")
 
-                Utils.matToBitmap(grayscaleMat,grayBitmap);
+                    Utils.matToBitmap(grayscaleMat, grayBitmap);
                     println("flow 4-2")
 //
                     grayImgUri = saveImage(grayBitmap)
@@ -121,34 +117,34 @@ class MainActivity : FlutterActivity() {
                     println("flow 5")
 
 //                    Imgproc.threshold(grayscaleMat, adaptiveMat, 200.0, 255.0, Imgproc.THRESH_BINARY)
-                Imgproc.adaptiveThreshold(
-                    currentImage, adaptiveMat,
-                    255.0,
-                    Imgproc.ADAPTIVE_THRESH_MEAN_C,
-                    Imgproc.THRESH_BINARY,
-                    401,
-                    14.0,
-                )
+                    Imgproc.adaptiveThreshold(
+                        currentImage, adaptiveMat,
+                        255.0,
+                        Imgproc.ADAPTIVE_THRESH_MEAN_C,
+                        Imgproc.THRESH_BINARY,
+                        401,
+                        14.0,
+                    )
                     println("flow 5-1")
 
                     Imgproc.GaussianBlur(adaptiveMat, blurMat, Size(5.0, 5.0), 0.0)
                     println("flow 5-2")
 
-                Core.addWeighted(blurMat, 0.5, currentImage, 0.5, 1.0, whiteboardMat)
+                    Core.addWeighted(blurMat, 0.5, currentImage, 0.5, 1.0, whiteboardMat)
                     println("flow 5-3")
 
-                Utils.matToBitmap(whiteboardMat, whiteboardBitmap)
+                    Utils.matToBitmap(whiteboardMat, whiteboardBitmap)
                     println("flow 5-4")
 
                     whiteboardImgUri = saveImage(whiteboardBitmap)
                     println("flow 6")
 
-               } catch (e: Exception) {
-                   println(e)
-                   result.success("FilteredImgException $e")
-               }
+                } catch (e: Exception) {
+                    println(e)
+                    result.success("FilteredImgException $e")
+                }
 
-                val resltList = listOf(imgPath, whiteboardImgUri ,grayImgUri)
+                val resltList = listOf(imgPath, whiteboardImgUri, grayImgUri)
 
 
                 result.success(resltList)
@@ -159,10 +155,10 @@ class MainActivity : FlutterActivity() {
                 val angle: Double = call.argument("angle")!!
                 println(imgPath)
                 println(angle)
-                val src :Mat = Imgcodecs.imread(imgPath)
+                val src: Mat = Imgcodecs.imread(imgPath)
 
                 // Create empty Mat object to store output image
-                val dst : Mat=Mat()
+                val dst: Mat = Mat()
 
 
                 // Define Rotation Angle
@@ -176,23 +172,30 @@ class MainActivity : FlutterActivity() {
                     Core.rotate(src, dst, Core.ROTATE_180);
                 else if (angle == 270.0 || angle == -90.0)
 
-                    Core.rotate(src, dst,
-                        Core.ROTATE_90_COUNTERCLOCKWISE);
+                    Core.rotate(
+                        src, dst,
+                        Core.ROTATE_90_COUNTERCLOCKWISE
+                    );
                 else {
 
                     // Center of the rotation is given by
                     // midpoint of source image :
                     // (width/2.0,height/2.0)
-                    val rotPoint :Point= Point(src.cols() / 2.0,
-                        src.rows() / 2.0);
+                    val rotPoint: Point = Point(
+                        src.cols() / 2.0,
+                        src.rows() / 2.0
+                    );
 
                     // Create Rotation Matrix
-                    val rotMat :Mat = Imgproc.getRotationMatrix2D(
-                        rotPoint, angle, 1.0);
+                    val rotMat: Mat = Imgproc.getRotationMatrix2D(
+                        rotPoint, angle, 1.0
+                    );
 
                     // Apply Affine Transformation
-                    Imgproc.warpAffine(src, dst, rotMat, src.size(),
-                        Imgproc.WARP_INVERSE_MAP);
+                    Imgproc.warpAffine(
+                        src, dst, rotMat, src.size(),
+                        Imgproc.WARP_INVERSE_MAP
+                    );
 
                     // If counterclockwise rotation is required use
                     // following: Imgproc.warpAffine(src, dst,
@@ -214,8 +217,7 @@ class MainActivity : FlutterActivity() {
 //              val temp =  rotateThread.start()
 //                println(temp)
                 result.success(imgPath)
-            }
-           else {
+            } else {
                 result.notImplemented()
             }
         }
@@ -229,7 +231,7 @@ class MainActivity : FlutterActivity() {
         }
 
 
-        override fun run(): Unit{
+        override fun run(): Unit {
             System.out.println("started")
             val matrix = Matrix()
             matrix.postRotate(90.toFloat())
@@ -261,41 +263,24 @@ class MainActivity : FlutterActivity() {
         y4: Double,
         imgWidth: Double,
         imgHeight: Double,
-        inputImg: String
+        originalImgPath: String,
     ): String {
         var imageUri: String? = ""
-//    val sd: File = Environment.getExternalStorageDirectory()
-        val image = File(inputImg)
+        val imageFile = File(originalImgPath)
+
         try {
             val bmOptions: BitmapFactory.Options = BitmapFactory.Options()
-            var bitmap: Bitmap = BitmapFactory.decodeFile(image.path, bmOptions)
+            var bitmap: Bitmap = BitmapFactory.decodeFile(imageFile.path, bmOptions)
             bitmap = Bitmap.createScaledBitmap(bitmap, imgWidth.toInt(), imgHeight.toInt(), true)
-            val imagePath: String
-            val sortedPoints = arrayOfNulls<Point>(4)
             val point1 = Point(x1, y1)
             val point2 = Point(x2, y2)
             val point3 = Point(x3, y3)
             val point4 = Point(x4, y4)
-
-
-//    MatOfPoint2f src = MatOfPoint2f()
             val src = MatOfPoint2f(
                 point1, point2, point3, point4
             )
-
-
-//    val src = MatOfPoint2f(
-//            sortedPoints.get(0),
-//            sortedPoints.get(1),
-//sortedPoints.get(2),
-//sortedPoints.get(3))
-
             val currentImage = Mat()
-
-//    val bmp32: Bitmap = bmp.copy(Bitmap.Config.ARGB_8888, true)
             Utils.bitmapToMat(bitmap, currentImage)
-//    src.adjustROI(lineWidth, lineWidth, lineWidth, lineWidth);
-
             val dst = MatOfPoint2f(
                 Point(0.0, 0.0),
                 Point(imgWidth.toDouble(), 0.0),
@@ -303,15 +288,11 @@ class MainActivity : FlutterActivity() {
                 Point(imgWidth, imgHeight)
             )
             val warpMat = Imgproc.getPerspectiveTransform(src, dst)
-            //This is your new image as Mat
             val destImage = Mat()
-            // Imgproc.cvtColor(currentImage,destImage,Imgproc.COLOR_RGBA2GRAY);
             Imgproc.warpPerspective(currentImage, destImage, warpMat, Size(imgWidth, imgHeight))
-//
             val tempbmp =
                 Bitmap.createBitmap(destImage.cols(), destImage.rows(), Bitmap.Config.ARGB_8888)
             Utils.matToBitmap(destImage, tempbmp);
-
             val currentBitmap = Bitmap.createBitmap(
                 currentImage.cols(),
                 currentImage.rows(),
@@ -319,18 +300,12 @@ class MainActivity : FlutterActivity() {
             )
             Utils.matToBitmap(currentImage, currentBitmap)
             Utils.matToBitmap(destImage, tempbmp)
-
             imageUri = saveImage(tempbmp)
-            println("MY IMAGE URI $imageUri")
-
 
         } catch (e: Exception) {
-            println(e)
             return "EXP : $e"
         }
-
-
-//  return imagePath
+        println("Native ======>  Cropped Image Result : ${imageUri}");
         return imageUri ?: ""
     }
 
@@ -368,8 +343,8 @@ class MainActivity : FlutterActivity() {
 
         }
         println("func flow 9")
-        var result : String = ""
-        result = filePath?:""
+        var result: String = ""
+        result = filePath ?: ""
         println("func flow 10")
         return result
     }
