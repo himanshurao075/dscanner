@@ -4,6 +4,7 @@ import 'package:dscanner/ImageService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:isolate_image_compress/isolate_image_compress.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'ImageEditPage.dart';
@@ -104,7 +105,9 @@ class _HomepageState extends State<Homepage> {
       );
     }
 
+
     ///popup to ask pdf name
+    // ignore: use_build_context_synchronously
     await showDialog(
       context: context,
       builder: (context) {
@@ -155,6 +158,9 @@ class _HomepageState extends State<Homepage> {
         );
       },
     );
+
+
+
   }
 
   @override

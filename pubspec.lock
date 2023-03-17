@@ -256,6 +256,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.18.0"
+  isolate_flutter:
+    dependency: transitive
+    description:
+      name: isolate_flutter
+      sha256: d8133975c79dd5493d94e0aa576293bfbf237402d92d957db7c8e9c5d50b8143
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
+  isolate_image_compress:
+    dependency: "direct main"
+    description:
+      name: isolate_image_compress
+      sha256: f670493e8c96f74dfd4bba75d2f2b8a9846c6ccc22c9e1ead997e42133fa374b
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   js:
     dependency: transitive
     description:

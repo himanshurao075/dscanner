@@ -41,7 +41,19 @@ class _ExcelFilesListState extends State<ExcelFilesList> {
    for (var element in files) {
      final bytes  = File(element.path).readAsBytesSync();
       final name = element.path.split("/").last;
-      final size = (bytes.length/1024).toStringAsFixed(2) + " kB";
+      double length = (bytes.length/1024);
+      String unit = "kB";
+      if(length>1023) {
+        length = length/1024;
+        unit = "MB";
+      }
+      if(length>1023) {
+        length = length/1024;
+        unit = "GB";
+      }
+
+      final size= "${length.toStringAsFixed(2)} $unit";
+
       final path = element.path;
       _folders.add(PdfFileModel(path:path , bytes: bytes,name: name,size: size));
    }

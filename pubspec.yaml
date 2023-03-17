@@ -14,6 +14,7 @@ dependencies:
   path_provider:
   camera: ^0.10.3+2
   syncfusion_flutter_pdf: ^20.3.49
+  isolate_image_compress:
   pdf: ^3.6.0
   printing: 5.0.4
   share_plus:
