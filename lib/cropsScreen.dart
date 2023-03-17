@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:dscanner/ImageService.dart';
 import 'package:dscanner/SizeUtils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
@@ -17,6 +18,7 @@ class CropScreen extends StatefulWidget {
 }
 
 class _CropScreenState extends State<CropScreen> {
+
   Offset touchPointer1 = const Offset(0, 0);
   Offset touchPointer2 = const Offset(0, 0);
   Offset touchPointer3 = const Offset(0, 0);
@@ -32,6 +34,12 @@ class _CropScreenState extends State<CropScreen> {
   bool isPortrait = true;
   double  screenPadding = 16;
 
+  @override
+  void initState() {
+    super.initState();
+    getCanvasSizeDetails();
+
+  }
   @override
   Widget build(BuildContext context) {
     touchPointer1 = const Offset(20, 20);
@@ -329,11 +337,6 @@ class _CropScreenState extends State<CropScreen> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getCanvasSizeDetails();
-  }
 }
 
 class CustomCropPainter extends CustomPainter {

@@ -2,7 +2,7 @@ name: dscanner
 description: A new Flutter project.
 publish_to: 'none'
 version: 0.1.0
-
+#  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
 environment:
   sdk: '>=2.18.6 <3.0.0'
 
@@ -10,9 +10,15 @@ dependencies:
   flutter:
     sdk: flutter
   image_picker: ^0.8.6+4
-  image: ^4.0.15
+  image: ^3.0.1
   path_provider:
   camera: ^0.10.3+2
+  syncfusion_flutter_pdf: ^20.3.49
+  pdf: ^3.6.0
+  printing: 5.0.4
+  share_plus:
+  open_app_file:
+
 
 
 
@@ -21,5 +27,14 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^2.0.0
 
+
 flutter:
   uses-material-design: true
+
+#assets:
+#  - assets/OpenSans-Bold.ttf
+
+#fonts:
+#  - family: OpenSans
+#    fonts:
+#      - asset: assets/OpenSans-Bold.ttf
