@@ -90,7 +90,6 @@ class _HomepageState extends State<Homepage> {
     final pdf = pw.Document();
     var dir = await createFolderInAppDocDir();
 
-
     for (int i = 0; i <= ImageService().pickedImages.length - 1; i++) {
       // var data = await rootBundle.load('assets/OpenSans-Bold.ttf');
       // var myFont = pw.Font.ttf(data);
@@ -123,7 +122,8 @@ class _HomepageState extends State<Homepage> {
           ),
           actions: [
             TextButton(
-              onPressed: () async { var random = Random(99999999);
+              onPressed: () async {
+                var random = Random(99999999);
                 final file = File(
                     pdfName.isEmpty ? "$dir/$random.pdf" : "$dir/$pdfName.pdf");
 
@@ -138,14 +138,15 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
             TextButton(
-              onPressed: () async { var random = Random(99999999);
+              onPressed: () async {
+                var random = Random(99999999);
                 final file = File(
                     pdfName.isEmpty ? "$dir/$random.pdf" : "$dir/$pdfName.pdf");
                 ImageService().newFile =
                     await file.writeAsBytes(await pdf.save());
 
                 print(ImageService().newFile);
-                Share.shareXFiles([XFile(ImageService().newFile?.path??'')]);
+                Share.shareXFiles([XFile(ImageService().newFile?.path ?? '')]);
                 Navigator.pop(context);
               },
               child: const Text(
@@ -166,27 +167,30 @@ class _HomepageState extends State<Homepage> {
         actions: [
           IconButton(
             onPressed: () async {
-              imagePdfBuilder();
+              ImageService().pickedImages.isEmpty
+                  ? ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No image is selected')))
+                  : imagePdfBuilder();
             },
             icon: const Icon(Icons.picture_as_pdf),
-          ), IconButton(
+          ),
+          IconButton(
             onPressed: () async {
-             ImageService().pickedImages = List.empty(growable: true);
-             setState(() {
-
-             });
-             // ImageService().displayImageFile;
+              ImageService().pickedImages = List.empty(growable: true);
+              setState(() {});
+              // ImageService().displayImageFile;
             },
             icon: const Icon(Icons.clear),
           ),
-
           IconButton(
             onPressed: () async {
-Navigator.push(context, MaterialPageRoute(builder: (context) => ExcelFilesList(),));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ExcelFilesList(),
+                  ));
             },
             icon: const Icon(Icons.save),
           ),
-
         ],
       ),
       floatingActionButton: ImageService().pickedImages.isNotEmpty
