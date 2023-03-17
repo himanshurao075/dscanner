@@ -137,72 +137,26 @@ class MainActivity : FlutterActivity() {
             if (call.method == "rotate") {
                 var outputImgUri: String = ""
                 val imgPath: String = call.argument("imgPath")!!
+                val imageFile = File(imgPath)
+                val bmOptions: BitmapFactory.Options = BitmapFactory.Options()
+                var inputBitmap: Bitmap = BitmapFactory.decodeFile(imageFile.path, bmOptions)
                 val angle: Double = call.argument("angle")!!
                 val src: Mat = Imgcodecs.imread(imgPath)
                 // Create empty Mat object to store output image
                 val dst: Mat = Mat()
-                try {// Define Rotation Angle
-                    // Image rotation according to the angle provided
-                    if (angle == 90.0 || angle == -270.0)
-                        Core.rotate(src, dst, Core.ROTATE_90_CLOCKWISE);
-                    else if (angle == 180.0 || angle == -180.0)
-                        Core.rotate(src, dst, Core.ROTATE_180);
-                    else if (angle == 270.0 || angle == -90.0)
-                        Core.rotate(
-                            src, dst,
-                            Core.ROTATE_90_COUNTERCLOCKWISE
-                        );
-                    else {
-                        // Center of the rotation is given by
-                        // midpoint of source image :
-                        // (width/2.0,height/2.0)
-                        val rotPoint: Point = Point(
-                            src.cols() / 2.0,
-                            src.rows() / 2.0
-                        );
-                        // Create Rotation Matrix
-                        val rotMat: Mat = Imgproc.getRotationMatrix2D(
-                            rotPoint, angle, 1.0
-                        );
-                        // Apply Affine Transformation
-                        Imgproc.warpAffine(
-                            src, dst, rotMat, src.size(),
-                            Imgproc.WARP_INVERSE_MAP
-                        );
-                        // If counterclockwise rotation is required use
-                        // following: Imgproc.warpAffine(src, dst,
-                        // rotMat, src.size());
-                    }
-                    //// convert dst Mat to bitmap
-
-                    var rotatedImgBitmap: Bitmap = Bitmap.createBitmap(
-                        dst.cols(),
-                        dst.rows(),
-                        Bitmap.Config.ARGB_8888
+                val matrix = Matrix()
+                matrix.postRotate(angle.toFloat())
+                var outputBitmap: Bitmap =BitmapFactory.decodeFile(imageFile.path, bmOptions)
+                try {
+                  outputBitmap  = Bitmap.createBitmap(
+                        inputBitmap, 0, 0, inputBitmap.getWidth(), inputBitmap.getHeight(),
+                        matrix, true
                     )
-                    Utils.matToBitmap(dst, rotatedImgBitmap);
-
-
-                    /// Get Image Uri from rotatedBitmap
-
-
-                    outputImgUri = saveImage(rotatedImgBitmap);
-
-
-//
-//                    // Save rotated image
-//                    // Destination where rotated image is saved
-//                    // on local directory
-//
-//                    val imagetype = Imgcodecs.imwrite(imgPath, dst)
-//
-                    // Print message for successful execution of program
-                    println("Image Rotated Successfully $outputImgUri")
-
                 } catch (e: Exception) {
                     println("Native ======>  ImageRotate : Excpetion = $e")
                     result.success("Some Excpetion $e")
                 }
+                outputImgUri = saveImage(outputBitmap);
                 result.success(outputImgUri)
             } else {
                 result.notImplemented()
@@ -258,7 +212,12 @@ class MainActivity : FlutterActivity() {
             val warpMat = Imgproc.getPerspectiveTransform(src, dst)
             val destImage = Mat()
             //// Get Prespective Cropped Image (Saved in destImage Mat )
-            Imgproc.warpPerspective(currentImage, destImage, warpMat, Size(outputImgWidth, outputImgHeight))
+            Imgproc.warpPerspective(
+                currentImage,
+                destImage,
+                warpMat,
+                Size(outputImgWidth, outputImgHeight)
+            )
             val tempbmp =
                 Bitmap.createBitmap(destImage.cols(), destImage.rows(), Bitmap.Config.ARGB_8888)
             ///// Converting Output Mat to Bitmap

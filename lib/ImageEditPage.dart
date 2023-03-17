@@ -45,7 +45,7 @@ class _ImageEditScreenState extends State<ImageEditScreen> {
     final displayImage = ImageService().displayImageFile?.path ?? '';
 
     return Scaffold(
-      // backgroundColor: Colors.teal,
+      backgroundColor: Colors.black,
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
