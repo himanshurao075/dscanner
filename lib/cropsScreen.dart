@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:dscanner/ImageService.dart';
 import 'package:dscanner/SizeUtils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
@@ -19,10 +20,10 @@ class _CropScreenState extends State<CropScreen> {
 
   Future<ui.Image> getImage() async {
     final imgCompletor = Completer<ui.Image>();
-    Size size = MediaQuery.of(context).size;
+    // Size size = MediaQuery.of(context).size;
     final bytes = await (ImageService().displayImageFile!).readAsBytes();
     final m = MemoryImage(bytes);
-    var decodedImage = await decodeImageFromList(bytes);
+    // var decodedImage = await decodeImageFromList(bytes);
 
     // final resizedImage =
     // ResizeImage(m, width: size.width.toInt(), height:(size.height*0.9).toInt());
@@ -212,10 +213,12 @@ setState(() {
     final screenSize = MediaQueryData.fromWindow(window).size;
     final canvasHeight =  isPotrait ? size.height*0.9 *hitPer: size.width*hitPer ;
     final canvasWidth = isPotrait ?  size.height*0.9*widPer   :  size.width*widPer;
-    print("Center  - ${screenSize.height/2 } ${screenSize.width /2}");
+    if (kDebugMode) {
+      print("Center  - ${screenSize.height/2 } ${screenSize.width /2}");
+    }
 
 
-    touchPointer1 =  Offset(20, 20);
+    touchPointer1 =  const Offset(20, 20);
     touchPointer2 = Offset(canvasWidth -20, 20);
     touchPointer3 = Offset(20, canvasHeight -20);
     touchPointer4 = Offset(canvasWidth-20, canvasHeight -20);
@@ -233,6 +236,7 @@ setState(() {
         appBar: AppBar(title: const Text("Image Cropping"), actions: [IconButton( onPressed :() async{
           await callMethodChannel();
           ImageService().originalImageFile =XFile( ImageService().displayImageFile?.path??'');
+          // ignore: use_build_context_synchronously
           Navigator.pop(context);
 
         },icon : const Icon(Icons.check))],),
