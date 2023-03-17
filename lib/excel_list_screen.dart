@@ -1,10 +1,21 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:open_app_file/open_app_file.dart';
+
+
+class PdfFileModel {
+  PdfFileModel({this.path= '',this.name='',this.size="",required this.bytes});
+
+  String name = '';
+  String size = '';
+  Uint8List? bytes  ;
+  String path = '';
+}
 
 //ignore: must_be_immutable
 class ExcelFilesList extends StatefulWidget {
@@ -17,7 +28,7 @@ class ExcelFilesList extends StatefulWidget {
 }
 
 class _ExcelFilesListState extends State<ExcelFilesList> {
-  List<FileSystemEntity>? _folders;
+  List<PdfFileModel> _folders =[];
 
   @override
   initState() {
@@ -26,7 +37,14 @@ class _ExcelFilesListState extends State<ExcelFilesList> {
   }
 
   getExcelList() async {
-    _folders = await excelFileList();
+   final files = await excelFileList();
+   for (var element in files) {
+     final bytes  = File(element.path).readAsBytesSync();
+      final name = element.path.split("/").last;
+      final size = (bytes.length/1024).toStringAsFixed(2) + " kB";
+      final path = element.path;
+      _folders.add(PdfFileModel(path:path , bytes: bytes,name: name,size: size));
+   }
     setState(() {});
   }
 
@@ -52,18 +70,22 @@ class _ExcelFilesListState extends State<ExcelFilesList> {
                   child: ListView.builder(
                     itemCount: _folders!.length,
                     itemBuilder: (BuildContext context, int index) {
+
+                      final file =  _folders[index];
+
+
                       return Card(
                         child: ListTile(
                           onTap: () {
-                            widget.selectedPath!(_folders![index].path);
+                            // widget.selectedPath!(_folders![index].path);
                           },
                           title: Text(
-                            '${index + 1}. ${_folders![index].path.split("/").last}',
+                            file.name,
                             style: Theme.of(context).textTheme.bodyText1,
                           ),
                           subtitle: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
+                            children: [Text(file.size),
                               IconButton(
                                 icon: Icon(
                                   Icons.remove_red_eye_sharp,

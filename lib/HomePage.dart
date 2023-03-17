@@ -2,15 +2,12 @@ import 'dart:io';
 import 'dart:math';
 import 'package:dscanner/ImageService.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'ImageEditPage.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'dart:typed_data';
 
 import 'excel_list_screen.dart';
 
@@ -93,8 +90,9 @@ class _HomepageState extends State<Homepage> {
     for (int i = 0; i <= ImageService().pickedImages.length - 1; i++) {
       // var data = await rootBundle.load('assets/OpenSans-Bold.ttf');
       // var myFont = pw.Font.ttf(data);
+      final compressImageBytes  = await FlutterNativeImage.compressImage(ImageService().pickedImages[i].path,quality: 50,percentage: 50);
       final image =
-          pw.MemoryImage(await ImageService().pickedImages[i].readAsBytes());
+          pw.MemoryImage(compressImageBytes.readAsBytesSync());
       pdf.addPage(
         pw.Page(
           build: (pw.Context context) => pw.Center(
@@ -123,7 +121,7 @@ class _HomepageState extends State<Homepage> {
           actions: [
             TextButton(
               onPressed: () async {
-                var random = Random(99999999);
+                var random =  Random(99999999);
                 final file = File(
                     pdfName.isEmpty ? "$dir/$random.pdf" : "$dir/$pdfName.pdf");
 
@@ -168,19 +166,20 @@ class _HomepageState extends State<Homepage> {
           IconButton(
             onPressed: () async {
               ImageService().pickedImages.isEmpty
-                  ? ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No image is selected')))
+                  ? ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('No image is selected')))
                   : imagePdfBuilder();
             },
             icon: const Icon(Icons.picture_as_pdf),
           ),
-          IconButton(
-            onPressed: () async {
-              ImageService().pickedImages = List.empty(growable: true);
-              setState(() {});
-              // ImageService().displayImageFile;
-            },
-            icon: const Icon(Icons.clear),
-          ),
+          if (ImageService().pickedImages.isNotEmpty)
+            IconButton(
+              onPressed: () async {
+                ImageService().pickedImages = List.empty(growable: true);
+                setState(() {});
+              },
+              icon: const Icon(Icons.clear),
+            ),
           IconButton(
             onPressed: () async {
               Navigator.push(
