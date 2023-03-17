@@ -47,8 +47,10 @@ class MainActivity : FlutterActivity() {
                 val y2: Double = call.argument("y2")!!
                 val y3: Double = call.argument("y3")!!
                 val y4: Double = call.argument("y4")!!
-                val imgWidth: Int = call.argument("width")!!
-                val imgHeight: Int = call.argument("height")!!
+                val inputImgWidth: Int = call.argument("inputWidth")!!
+                val inputImgHeight: Int = call.argument("inputHeight")!!
+                val outputImgWidth: Int = call.argument("outputWidth")!!
+                val outputImgHeight: Int = call.argument("outputHeight")!!
                 val imgPath: String = call.argument("imgPath")!!
                 val croppedImage = cropImage(
                     x1,
@@ -59,8 +61,10 @@ class MainActivity : FlutterActivity() {
                     y2,
                     y3,
                     y4,
-                    imgWidth.toDouble(),
-                    imgHeight.toDouble(),
+                    inputImgWidth.toDouble(),
+                    inputImgHeight.toDouble(),
+                    outputImgWidth.toDouble(),
+                    outputImgHeight.toDouble(),
                     imgPath
                 )
                 result.success(croppedImage)
@@ -131,13 +135,13 @@ class MainActivity : FlutterActivity() {
             }
 
             if (call.method == "rotate") {
-                var outputImgUri : String = ""
+                var outputImgUri: String = ""
                 val imgPath: String = call.argument("imgPath")!!
                 val angle: Double = call.argument("angle")!!
                 val src: Mat = Imgcodecs.imread(imgPath)
                 // Create empty Mat object to store output image
                 val dst: Mat = Mat()
-                try{// Define Rotation Angle
+                try {// Define Rotation Angle
                     // Image rotation according to the angle provided
                     if (angle == 90.0 || angle == -270.0)
                         Core.rotate(src, dst, Core.ROTATE_90_CLOCKWISE);
@@ -176,14 +180,13 @@ class MainActivity : FlutterActivity() {
                         dst.rows(),
                         Bitmap.Config.ARGB_8888
                     )
-                    Utils.matToBitmap(dst,rotatedImgBitmap);
+                    Utils.matToBitmap(dst, rotatedImgBitmap);
 
 
                     /// Get Image Uri from rotatedBitmap
 
 
                     outputImgUri = saveImage(rotatedImgBitmap);
-
 
 
 //
@@ -196,8 +199,7 @@ class MainActivity : FlutterActivity() {
                     // Print message for successful execution of program
                     println("Image Rotated Successfully $outputImgUri")
 
-                }
-                catch (e: Exception) {
+                } catch (e: Exception) {
                     println("Native ======>  ImageRotate : Excpetion = $e")
                     result.success("Some Excpetion $e")
                 }
@@ -219,8 +221,10 @@ class MainActivity : FlutterActivity() {
         y2: Double,
         y3: Double,
         y4: Double,
-        imgWidth: Double,
-        imgHeight: Double,
+        inputImgWidth: Double,
+        inputImgHeight: Double,
+        outputImgWidth: Double,
+        outputImgHeight: Double,
         originalImgPath: String,
     ): String {
         var imageUri: String? = ""
@@ -228,7 +232,12 @@ class MainActivity : FlutterActivity() {
         try {
             val bmOptions: BitmapFactory.Options = BitmapFactory.Options()
             var bitmap: Bitmap = BitmapFactory.decodeFile(imageFile.path, bmOptions)
-            bitmap = Bitmap.createScaledBitmap(bitmap, imgWidth.toInt(), imgHeight.toInt(), true)
+            bitmap = Bitmap.createScaledBitmap(
+                bitmap,
+                inputImgWidth.toInt(),
+                inputImgHeight.toInt(),
+                true
+            )
             val point1 = Point(x1, y1)
             val point2 = Point(x2, y2)
             val point3 = Point(x3, y3)
@@ -241,15 +250,15 @@ class MainActivity : FlutterActivity() {
             Utils.bitmapToMat(bitmap, currentImage)
             val dst = MatOfPoint2f(
                 Point(0.0, 0.0),
-                Point(imgWidth.toDouble(), 0.0),
-                Point(0.0, imgHeight),
-                Point(imgWidth, imgHeight)
+                Point(outputImgWidth, 0.0),
+                Point(0.0, outputImgHeight),
+                Point(outputImgWidth, outputImgHeight)
             )
             /// Get Wrap Materix
             val warpMat = Imgproc.getPerspectiveTransform(src, dst)
             val destImage = Mat()
             //// Get Prespective Cropped Image (Saved in destImage Mat )
-            Imgproc.warpPerspective(currentImage, destImage, warpMat, Size(imgWidth, imgHeight))
+            Imgproc.warpPerspective(currentImage, destImage, warpMat, Size(outputImgWidth, outputImgHeight))
             val tempbmp =
                 Bitmap.createBitmap(destImage.cols(), destImage.rows(), Bitmap.Config.ARGB_8888)
             ///// Converting Output Mat to Bitmap
